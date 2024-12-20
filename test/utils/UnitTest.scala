@@ -16,11 +16,11 @@
 
 package utils
 
-import org.apache.pekko.actor.ActorSystem
 import com.codahale.metrics.SharedMetricRegistries
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
-import config.{AppConfig, ErrorHandler, MockAppConfig}
+import config.{AppConfig, MockAppConfig}
 import models.User
+import org.apache.pekko.actor.ActorSystem
 import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
@@ -77,7 +77,6 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   implicit val mockDividendsSessionService: DividendsSessionService = mock[DividendsSessionService]
   implicit val mockInterestSessionService: InterestSessionService = mock[InterestSessionService]
   implicit val mockGiftAidSessionService: GiftAidSessionService = mock[GiftAidSessionService]
-  implicit val mockErrorHandler: ErrorHandler = mock[ErrorHandler]
 
   implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
   implicit lazy val user: User[AnyContent] = new User[AnyContent](mtdItId, None, "AA123456A", "Individual", sessionId)(fakeRequest)
