@@ -17,7 +17,7 @@
 package controllers.predicates
 
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
-import config.AppConfig
+import config.{AppConfig, MockErrorHandler}
 import models.User
 import org.scalamock.handlers.{CallHandler0, CallHandler4}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -25,6 +25,7 @@ import play.api.http.Status._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
+import play.api.test.Helpers.status
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -38,10 +39,10 @@ import views.html.authErrorPages.AgentAuthErrorPageView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
+class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite with MockErrorHandler {
 
   val agentAuthErrorPageView: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
-  val authorisedAction = new AuthorisedAction(mockAppConfig, agentAuthErrorPageView)(mockAuthService, stubMessagesControllerComponents())
+  val authorisedAction = new AuthorisedAction(mockAppConfig, agentAuthErrorPageView, mockErrorHandler)(mockAuthService, stubMessagesControllerComponents())
 
   val auth: AuthorisedAction = authorisedAction
   val nino: String = "AA123456A"
@@ -115,7 +116,8 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
 
       new AuthorisedAction(
         appConfig = mockAppConfig,
-        agentAuthErrorPage = agentAuthErrorPageView
+        agentAuthErrorPage = agentAuthErrorPageView,
+        errorHandler = mockErrorHandler
       )(
         authService = mockAuthService,
         mcc = stubMessagesControllerComponents()
@@ -311,6 +313,23 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
         }
       }
 
+      "results in an Exception other than an AuthException error being returned for Primary Agent check" should {
+        "render an ISE page" in new AgentTest {
+          mockMultipleAgentsSwitch(false)
+
+          mockAuthReturnException(new Exception("bang"), primaryAgentPredicate(mtdItId))
+          mockFutureInternalServerError()
+
+          val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
+
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          bodyOf(result) shouldBe "There is a problem."
+        }
+      }
+
       "[EMA disabled] results in an AuthorisationException error being returned from Auth" should {
         "return a redirect to the agent error page" in new AgentTest {
           mockMultipleAgentsSwitch(false)
@@ -329,6 +348,22 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
       }
 
       "[EMA enabled] results in an AuthorisationException error being returned from Auth" should {
+        "render an ISE page when secondary agent auth call also fails with non-Auth exception" in new AgentTest {
+          mockMultipleAgentsSwitch(true)
+
+          mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
+          mockAuthReturnException(new Exception("bang"), secondaryAgentPredicate(mtdItId))
+          mockInternalServerError()
+
+          lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
+
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+          bodyOf(result) shouldBe "There is a problem."
+        }
+
         "return a redirect to the agent error page when secondary agent auth call also fails" in new AgentTest {
           mockMultipleAgentsSwitch(true)
 
@@ -479,7 +514,20 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite {
         status(result) shouldBe SEE_OTHER
       }
     }
-  }
 
+    "render ISE" when {
+
+      "Any other type of unexpected exception is caught in the recovery block" in {
+
+        mockAuthReturnException(new Exception("bang"))
+        mockInternalServerError()
+
+        val result = auth.invokeBlock(fakeRequest, block)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        bodyOf(result) shouldBe "There is a problem."
+      }
+    }
+  }
 }
 

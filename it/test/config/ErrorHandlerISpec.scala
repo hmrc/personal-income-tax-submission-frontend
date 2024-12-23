@@ -16,29 +16,17 @@
 
 package test.config
 
-import config.{AppConfig, ErrorHandler}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status._
-import play.api.i18n._
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import test.utils.{IntegrationTest, ViewHelpers}
-import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
 
 import scala.concurrent.Future
 
 
 class ErrorHandlerISpec extends IntegrationTest with ViewHelpers {
-
-  val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]
-  val notFoundTemplate: NotFoundTemplate = app.injector.instanceOf[NotFoundTemplate]
-  val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
-
-  val mockMessagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  val mockFrontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
-
-  val errorHandler = new ErrorHandler(internalServerErrorTemplate, serviceUnavailableTemplate, mockMessagesApi, notFoundTemplate)(mockFrontendAppConfig)
 
   val h1Expected = "Page not found"
   val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"

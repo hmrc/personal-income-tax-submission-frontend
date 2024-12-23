@@ -19,7 +19,7 @@ package test.utils
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import connectors.stockdividends.GetStockDividendsSessionConnector
 import connectors.{IncomeSourceConnector, IncomeTaxUserDataConnector, StockDividendsUserDataConnector}
 import controllers.predicates.AuthorisedAction
@@ -280,6 +280,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     .build()
 
   implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+  lazy val errorHandler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -376,7 +377,8 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
                   acceptedConfidenceLevel: Seq[ConfidenceLevel] = Seq.empty[ConfidenceLevel]
                 ): AuthorisedAction = new AuthorisedAction(
     appConfig,
-    agentAuthErrorPage
+    agentAuthErrorPage,
+    errorHandler
   )(
     authService(stubbedRetrieval, if (acceptedConfidenceLevel.nonEmpty) {
       acceptedConfidenceLevel
