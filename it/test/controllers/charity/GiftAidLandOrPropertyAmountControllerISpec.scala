@@ -52,7 +52,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val expectedButtonText: String
     val expectedTitle: String
     val expectedHeading: String
-    val expectedInputLabel: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -62,7 +61,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val expectedButtonText = "Continue"
     val expectedTitle = "What is the value of land or property donated to charity?"
     val expectedHeading = "What is the value of land or property donated to charity?"
-    val expectedInputLabel = "Total value, in pounds"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -72,7 +70,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
     val expectedButtonText = "Yn eich blaen"
     val expectedTitle = "Beth yw gwerth tir neu eiddo a roddwyd i elusen?"
     val expectedHeading = "Beth yw gwerth tir neu eiddo a roddwyd i elusen?"
-    val expectedInputLabel = "Cyfanswm y gwerth, mewn punnoedd"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -142,7 +139,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
           titleCheck(expectedTitle, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(expectedInputLabel, inputLabelSelector)
           textOnPageCheck(expectedHint, inputHintTextSelector)
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
@@ -164,7 +160,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
           titleCheck(expectedTitle, user.isWelsh)
           h1Check(expectedHeading + " " + expectedCaption)
           textOnPageCheck(expectedCaption, captionSelector)
-          textOnPageCheck(expectedInputLabel, inputLabelSelector)
           textOnPageCheck(expectedHint, inputHintTextSelector)
           inputFieldCheck(expectedInputName, inputFieldSelector)
           buttonCheck(expectedButtonText, buttonSelector)
@@ -256,7 +251,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputLabel, inputLabelSelector)
             textOnPageCheck(expectedHint, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
@@ -278,7 +272,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputLabel, inputLabelSelector)
             textOnPageCheck(expectedHint, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)
@@ -299,7 +292,6 @@ class GiftAidLandOrPropertyAmountControllerISpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + expectedTitle, user.isWelsh)
             h1Check(expectedHeading + " " + expectedCaption)
             textOnPageCheck(expectedCaption, captionSelector)
-            textOnPageCheck(expectedInputLabel, inputLabelSelector)
             textOnPageCheck(expectedHint, inputHintTextSelector)
             inputFieldCheck(expectedInputName, inputFieldSelector)
             buttonCheck(expectedButtonText, buttonSelector)

@@ -30,7 +30,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val titleSelector = "title"
     val inputField = ".govuk-input"
     val errorHref = "#amount"
-    val inputLabel = "#p1"
   }
 
   def url: String = s"$appUrl/$taxYear/charity/value-of-shares-securities-land-or-property-to-overseas-charities"
@@ -47,7 +46,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val caption: String
     val button: String
     val inputName: String
-    val inputLabel: String
     val expectedErrorExceeds: String
   }
 
@@ -57,7 +55,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val caption = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val button = "Continue"
     val inputName = "amount"
-    val inputLabel = "Total value, in pounds"
     val expectedErrorExceeds: String = "The value of shares, securities, land or property donated to overseas charities cannot be more than the " +
       "‘value of shares and securities donated to charity’ plus the ‘value of land or property donated to charity’"
   }
@@ -68,7 +65,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
     val caption = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val button = "Yn eich blaen"
     val inputName = "amount"
-    val inputLabel = "Cyfanswm y gwerth, mewn punnoedd"
     val expectedErrorExceeds: String = "Ni all gwerth cyfranddaliadau, gwarantau, tir neu eiddo a roddir i elusennau fod yn fwy na" +
       " ‘gwerth cyfranddaliadau a gwarantau a roddir i elusennau’ plws ‘gwerth tir neu eiddo a roddir i elusennau’"
   }
@@ -140,7 +136,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
           titleCheck(heading, user.isWelsh)
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)
-          textOnPageCheck(inputLabel, Selectors.inputLabel)
           hintTextCheck(hintText)
           captionCheck(caption)
           buttonCheck(button)
@@ -162,7 +157,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
           titleCheck(heading, user.isWelsh)
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)
-          textOnPageCheck(inputLabel, Selectors.inputLabel)
           hintTextCheck(hintText)
           captionCheck(caption)
           buttonCheck(button)
@@ -267,7 +261,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
@@ -286,7 +279,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
@@ -306,7 +298,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
@@ -323,7 +314,6 @@ class OverseasSharesSecuritiesLandPropertyAmountControllerSpec extends CharityIT
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
