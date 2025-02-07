@@ -47,10 +47,6 @@
 
 @headingForUse = @{(titleForUse)}
 
-@caption = @{
-    Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString))
-}
-
 @contentHtml = @{
     if(!preAmount.isDefined){
         p(Html(messages(s"dividends.common.change-amount.caption.${if(user.isAgent) "agent" else "individual"}")),
@@ -83,8 +79,6 @@
     @errorSummary(form.errors)
 
     @heading(headingForUse, Some(messages("dividends.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
-
-    @caption
 
     @contentHtml
 
