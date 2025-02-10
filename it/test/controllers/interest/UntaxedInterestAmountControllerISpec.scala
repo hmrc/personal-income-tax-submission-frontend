@@ -43,7 +43,6 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val accountName: String = "#main-content > div > div > form > div:first-of-type > label > .govuk-label"
     val interestEarned: String = "#main-content > div > div > form > div:last-of-type > label"
     val accountNameInput: String = "#untaxedAccountName"
-    val eachAccount = "#p1"
     val amountInput: String = "#untaxedAmount"
 
     val errorSummary: String = "#error-summary-title"
@@ -60,7 +59,6 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val heading: String
     val caption: String
     val accountName: String
-    val eachAccount: String
     val interestEarned: String
     val hint: String
     val button: String
@@ -77,9 +75,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val heading: String = "Add an account with untaxed UK interest"
     val caption: String = s"Interest for 6 April $taxYearEOY to 5 April $taxYear"
     val accountName: String = "What do you want to name this account?"
-    val eachAccount = "Give each account a different name."
     val interestEarned: String = "Amount of untaxed UK interest"
-    val hint: String = "For example, ‘HSBC savings account’. " + "For example, £193.52"
+    val hint: String = "Give each account a different name. " + "For example, ‘HSBC savings account’. " + "For example, £193.52"
     val button: String = "Continue"
     val noNameEntryError: String = "Enter a name for this account"
     val invalidCharEntry: String = "Name of account with untaxed UK interest must only include numbers 0-9, " +
@@ -95,9 +92,8 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
     val heading: String = "Ychwanegwch gyfrif sydd â llog y DU sydd heb ei drethu"
     val caption: String = s"Llog ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val accountName: String = "Beth yw’r enw rydych am roi i’r cyfrif hwn?"
-    val eachAccount = "Rhowch enw gwahanol i bob cyfrif."
     val interestEarned: String = "Swm y llog y DU sydd heb ei drethu"
-    val hint: String = "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £193.52"
+    val hint: String = "Rhowch enw gwahanol i bob cyfrif. " + "Er enghraifft, ‘cyfrif cynilo HSBC’. " + "Er enghraifft, £193.52"
     val button: String = "Yn eich blaen"
     val noNameEntryError: String = "Nodwch enw ar gyfer y cyfrif hwn"
     val invalidCharEntry: String = "Rhaid i enw’r cyfrif, sydd â llog y DU heb ei drethu, gynnwys y rhifau 0-9, " +
@@ -169,7 +165,6 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           h1Check(s"$heading $caption")
           captionCheck(caption)
           textOnPageCheck(accountName, Selectors.accountName)
-          textOnPageCheck(eachAccount, Selectors.eachAccount)
           inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(interestEarned, Selectors.interestEarned)
           hintTextCheck(hint)

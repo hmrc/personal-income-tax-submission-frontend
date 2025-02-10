@@ -30,7 +30,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
     val titleSelector = "title"
     val inputField = ".govuk-input"
     val errorHref = "#amount"
-    val inputLabel = "#p1"
   }
 
   def url: String = s"$appUrl/$taxYear/charity/value-of-shares-or-securities"
@@ -47,7 +46,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
     val caption: String
     val button: String
     val inputName: String
-    val inputLabel: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -56,7 +54,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
     val caption = s"Donations to charity for 6 April $taxYearEOY to 5 April $taxYear"
     val button = "Continue"
     val inputName = "amount"
-    val inputLabel = "Total value, in pounds"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -65,7 +62,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
     val caption = s"Rhoddion i elusennau ar gyfer 6 Ebrill $taxYearEOY i 5 Ebrill $taxYear"
     val button = "Yn eich blaen"
     val inputName = "amount"
-    val inputLabel = "Cyfanswm y gwerth, mewn punnoedd"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -133,7 +129,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           titleCheck(heading, user.isWelsh)
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)
-          textOnPageCheck(inputLabel, Selectors.inputLabel)
           hintTextCheck(hintText)
           captionCheck(caption)
           buttonCheck(button)
@@ -155,7 +150,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
           titleCheck(heading, user.isWelsh)
           h1Check(heading + " " + caption)
           inputFieldCheck(inputName, Selectors.inputField)
-          textOnPageCheck(inputLabel, Selectors.inputLabel)
           hintTextCheck(hintText)
           captionCheck(caption)
           buttonCheck(button)
@@ -240,7 +234,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
@@ -259,7 +252,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
@@ -278,7 +270,6 @@ class GiftAidTotalShareSecurityAmountControllerSpec extends CharityITHelper {
             titleCheck(errorPrefix(user.isWelsh) + heading, user.isWelsh)
             h1Check(heading + " " + caption)
             inputFieldCheck(inputName, Selectors.inputField)
-            textOnPageCheck(inputLabel, Selectors.inputLabel)
             hintTextCheck(hintText)
             captionCheck(caption)
             buttonCheck(button)
