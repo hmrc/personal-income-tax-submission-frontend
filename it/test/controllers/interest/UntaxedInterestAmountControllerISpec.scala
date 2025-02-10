@@ -165,7 +165,6 @@ class UntaxedInterestAmountControllerISpec extends IntegrationTest with ViewHelp
           h1Check(s"$heading $caption")
           captionCheck(caption)
           textOnPageCheck(accountName, Selectors.accountName)
-//          textOnPageCheck(eachAccount, Selectors.eachAccount)
           inputFieldCheck(UntaxedInterestAmountForm.untaxedAccountName, Selectors.accountNameInput)
           textOnPageCheck(interestEarned, Selectors.interestEarned)
           hintTextCheck(hint)
