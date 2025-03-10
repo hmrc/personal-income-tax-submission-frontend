@@ -91,6 +91,9 @@ error.agent.paragraph2 = eich awdurdodi fel ei asiant (yn agor tab newydd)
 error.agent.paragraph3 = cyn y gallwch fewngofnodi i’r gwasanaeth hwn.
 error.agent.paragraph4 = Rhowch gynnig ar fanylion cleient arall
 
+error.supp.agent.unauthorised.paragraph = Rydych yn asiant ategol ar gyfer y cleient hwn. Dim ond eich cleient neu ei brif asiant, os oes ganddo un, sy’n gallu cael at a chyflwyno ei Ffurflen Dreth.
+error.supp.agent.unauthorised.link = Yn ôl i hafan y cyfrif
+
 error.common.title = Ni allwch fwrw golwg dros y dudalen hon
 error.common.p.1 = Mae’n rhaid i chi
 error.common.p.2 = cyn i chi allu bwrw golwg ar y dudalen hon.

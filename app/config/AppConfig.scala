@@ -56,6 +56,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   private lazy val vcBaseUrl: String = servicesConfig.getString(ConfigKeys.viewAndChangeUrl)
 
   def viewAndChangeEnterUtrUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents/client-utr"
+  def viewAndChangeAgentsUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents"
 
   private lazy val appUrl: String = servicesConfig.getString("microservice.url")
 
@@ -118,7 +119,6 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   lazy val dividendsTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.dividends")
   lazy val charityTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.charity")
   lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.sectionCompletedQuestionEnabled")
-  lazy val emaSupportingAgentsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.ema-supporting-agents-enabled")
 }
 
 @ImplementedBy(classOf[FrontendAppConfig])
@@ -145,6 +145,8 @@ trait AppConfig {
   def incomeTaxSubmissionIvRedirect: String
 
   def viewAndChangeEnterUtrUrl: String
+
+  def viewAndChangeAgentsUrl: String
 
   def contactFormServiceIdentifier(implicit isAgent: Boolean): String
 
@@ -187,6 +189,5 @@ trait AppConfig {
   def charityTailoringEnabled: Boolean
   def miniJourneyEnabled: Boolean
   def sectionCompletedQuestionEnabled: Boolean
-  def emaSupportingAgentsEnabled: Boolean
 
 }
