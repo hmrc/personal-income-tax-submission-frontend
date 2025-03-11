@@ -92,6 +92,9 @@ error.agent.paragraph2 = authorise you as their agent (opens in new tab)
 error.agent.paragraph3 = before you can sign in to this service.
 error.agent.paragraph4 = Try another client’s details
 
+error.supp.agent.unauthorised.paragraph = You’re a supporting agent for this client. Only your client or their main agent, if they have one, can access and submit their tax return.
+error.supp.agent.unauthorised.link = Go back to account home
+
 error.common.title = You cannot view this page
 error.common.p.1 = You need to
 error.common.p.2 = before you can view this page.

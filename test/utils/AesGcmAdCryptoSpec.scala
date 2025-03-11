@@ -16,7 +16,7 @@
 
 package utils
 
-import config.{MockAppConfig, MockAppConfigEncyrptionOff}
+import config.{MockAppConfig, MockAppConfigEncryptionOff}
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.crypto.{AdDecrypter, AdEncrypter, EncryptedValue}
 
@@ -47,7 +47,7 @@ class AesGcmAdCryptoSpec extends UnitTest
     }
 
     "useEncryption is false" should {
-      val appConfig = new MockAppConfigEncyrptionOff
+      val appConfig = new MockAppConfigEncryptionOff
       val underTest: AesGcmAdCrypto = new AesGcmAdCrypto(appConfig, mockAesGcmAdCryptoFactory)
       "return encrypted value" in {
         underTest.encrypt(valueToEncrypt) shouldBe EncryptedValue(valueToEncrypt, valueToEncrypt + "-Nonce")
@@ -68,7 +68,7 @@ class AesGcmAdCryptoSpec extends UnitTest
     }
 
     "useEncryption is false" should {
-      val appConfig = new MockAppConfigEncyrptionOff
+      val appConfig = new MockAppConfigEncryptionOff
       val underTest: AesGcmAdCrypto = new AesGcmAdCrypto(appConfig, mockAesGcmAdCryptoFactory)
       "return encrypted value" in {
         underTest.decrypt(EncryptedValue(valueToEncrypt, nonce)) shouldBe valueToEncrypt

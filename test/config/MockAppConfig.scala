@@ -45,6 +45,8 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def viewAndChangeEnterUtrUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
 
+  override def viewAndChangeAgentsUrl: String = "/report-quarterly/income-and-expenses/view/agents"
+
   override def contactFormServiceIdentifier(implicit isAgent: Boolean): String = "contactFormServiceIdentifier"
 
   override def feedbackSurveyUrl(implicit isAgent: Boolean): String = "/feedbackUrl"
@@ -91,10 +93,8 @@ class MockAppConfig extends AppConfig with MockFactory {
 
   override def sectionCompletedQuestionEnabled: Boolean = false
 
-  override def emaSupportingAgentsEnabled: Boolean = false
-
 }
 
-class MockAppConfigEncyrptionOff extends MockAppConfig {
+class MockAppConfigEncryptionOff extends MockAppConfig {
   override val useEncryption: Boolean = false
 }
