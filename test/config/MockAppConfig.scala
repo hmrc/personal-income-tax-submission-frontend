@@ -30,6 +30,7 @@ class MockAppConfig extends AppConfig with MockFactory {
   override val interestBaseUrl: String = "/interest"
   override val giftAidBaseUrl: String = "/giftAid"
   override val incomeTaxSubmissionBEBaseUrl: String = "/incomeTaxSubmissionBaseUrl"
+  override val vcSessionServiceBaseUrl: String = "/incomeTaxSessionData"
 
   override def defaultTaxYear: Int = 2022
 
