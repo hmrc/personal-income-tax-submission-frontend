@@ -29,7 +29,6 @@ import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.GiftAidSharesSecuritiesLandPropertyOverseasView
 
 import javax.inject.Inject
@@ -44,7 +43,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasController @Inject()(
                                                                        giftAidSessionService: GiftAidSessionService,
                                                                        errorHandler: ErrorHandler,
                                                                        implicit val appConfig: AppConfig
-                                                                     ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
+                                                                     ) extends FrontendController(cc) with I18nSupport with CharityJourney {
 
   implicit val executionContext: ExecutionContext = cc.executionContext
 

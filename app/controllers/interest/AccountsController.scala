@@ -29,10 +29,9 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.interest.InterestAccountsView
-import javax.inject.Inject
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AccountsController @Inject()(view: InterestAccountsView,
@@ -41,7 +40,7 @@ class AccountsController @Inject()(view: InterestAccountsView,
                                    val mcc: MessagesControllerComponents,
                                    val authorisedAction: AuthorisedAction,
                                    ec: ExecutionContext,
-                                   errorHandler: ErrorHandler) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
+                                   errorHandler: ErrorHandler) extends FrontendController(mcc) with I18nSupport with Logging {
 
   implicit def resultToFutureResult: Result => Future[Result] = baseResult => Future.successful(baseResult)
 

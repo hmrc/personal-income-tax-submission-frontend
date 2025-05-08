@@ -31,7 +31,6 @@ import services.{ExcludeJourneyService, InterestSessionService, InterestSubmissi
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.interest.InterestCYAView
 
 import javax.inject.Inject
@@ -49,7 +48,7 @@ class InterestCYAController @Inject()(
                                        implicit appConfig: AppConfig,
                                        authorisedAction: AuthorisedAction,
                                        val mcc: MessagesControllerComponents
-                                     ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
+                                     ) extends FrontendController(mcc) with I18nSupport with Logging {
 
 
   implicit val executionContext: ExecutionContext = mcc.executionContext

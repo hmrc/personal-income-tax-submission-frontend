@@ -30,7 +30,6 @@ import services._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.dividends.DividendsCYAView
 
 import javax.inject.Inject
@@ -45,7 +44,7 @@ class DividendsCYAController @Inject()(dividendsCyaView: DividendsCYAView,
                                        excludeJourneyService: ExcludeJourneyService)
                                       (implicit appConfig: AppConfig,
                                        authorisedAction: AuthorisedAction,
-                                       implicit val mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport with SessionHelper {
+                                       implicit val mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
   implicit val executionContext: ExecutionContext = mcc.executionContext

@@ -20,6 +20,8 @@ import audit._
 import config.{AppConfig, ErrorHandler, GIFT_AID}
 import controllers.predicates.AuthorisedAction
 import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.routes
+import models.User
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.charity.{CharityNameModel, GiftAidCYAModel}
 import play.api.Logger
@@ -29,13 +31,10 @@ import services.{ExcludeJourneyService, GiftAidSessionService, GiftAidSubmission
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.GiftAidCYAView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import controllers.routes
-import models.User
 
 class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
                                       authorisedAction: AuthorisedAction,
@@ -46,7 +45,7 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
                                       errorHandler: ErrorHandler,
                                       giftAidSessionService: GiftAidSessionService,
                                       excludeJourneyService: ExcludeJourneyService
-                                    ) extends FrontendController(mcc) with I18nSupport with SessionHelper {
+                                    ) extends FrontendController(mcc) with I18nSupport {
 
   lazy val logger: Logger = Logger(this.getClass.getName)
 

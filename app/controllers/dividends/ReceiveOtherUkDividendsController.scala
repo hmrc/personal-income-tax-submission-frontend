@@ -16,7 +16,7 @@
 
 package controllers.dividends
 
-import config.{AppConfig, DIVIDENDS, ErrorHandler, JourneyFeatureSwitchKeys, STOCK_DIVIDENDS}
+import config._
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
@@ -29,7 +29,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{DividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.dividends.ReceiveOtherUkDividendsView
 
 import javax.inject.Inject
@@ -45,7 +44,7 @@ class ReceiveOtherUkDividendsController @Inject()(
                                                    errorHandler: ErrorHandler,
                                                    implicit val appConfig: AppConfig,
                                                    ec: ExecutionContext
-                                                 ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                                 ) extends FrontendController(cc) with I18nSupport {
 
   val journeyKey: JourneyFeatureSwitchKeys = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)

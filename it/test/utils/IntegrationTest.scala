@@ -376,7 +376,6 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
                   stubbedRetrieval: Future[_],
                   acceptedConfidenceLevel: Seq[ConfidenceLevel] = Seq.empty[ConfidenceLevel]
                 ): AuthorisedAction = new AuthorisedAction(
-    appConfig,
     agentAuthErrorPage,
     errorHandler
   )(
@@ -385,6 +384,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
     } else {
       defaultAcceptedConfidenceLevels
     }),
+    appConfig,
     mcc
   )
 
