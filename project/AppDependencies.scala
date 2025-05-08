@@ -47,7 +47,7 @@ object AppDependencies {
     "org.jsoup"               %  "jsoup"                    % "1.19.1",
     "org.playframework"       %% "play-test"                % current,
     "org.mockito"             %% "mockito-scala"            % "1.17.37",
-    "org.scalamock"           %% "scalamock"                % "5.2.0",
+    "org.scalamock"           %% "scalamock"                % "7.3.2",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"  % hmrcMongoPlay30Version
   ).map(_ % "test")
 

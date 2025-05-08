@@ -24,8 +24,6 @@ class TailorRemoveIncomeSourcesAuditDetailSpec extends UnitTest {
 
   private val IncomeSources = Seq(DIVIDENDS.stringify, INTEREST.stringify)
 
-  private val nino = "AA000010A"
-  private val mtditid = "1234567890"
   private val userType = "individual"
   private val taxYear = 2022
 
@@ -35,7 +33,7 @@ class TailorRemoveIncomeSourcesAuditDetailSpec extends UnitTest {
         "produce valid json" in {
           val json = Json.obj(
             "nino" -> nino,
-            "mtditid" -> mtditid,
+            "mtditid" -> mtdItId,
             "userType" -> userType,
             "taxYear" -> taxYear,
             "body" -> Json.obj(
@@ -43,7 +41,7 @@ class TailorRemoveIncomeSourcesAuditDetailSpec extends UnitTest {
             ),
           )
 
-          val model = TailorRemoveIncomeSourcesAuditDetail(nino, mtditid, userType, taxYear, TailorRemoveIncomeSourcesBody(Seq(incomeSource)))
+          val model = TailorRemoveIncomeSourcesAuditDetail(nino, mtdItId, userType, taxYear, TailorRemoveIncomeSourcesBody(Seq(incomeSource)))
           Json.toJson(model) shouldBe json
         }
       }
