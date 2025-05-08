@@ -905,7 +905,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
         stubPut(s"/income-tax-submission-service/income-tax/nino/${user.nino}/sources/session\\?taxYear=$taxYear", NO_CONTENT, "")
         stubPost(s"/income-tax-gift-aid/income-tax/nino/$nino/sources\\?taxYear=$taxYear", NO_CONTENT, "{}")
 
-        val request = FakeRequest(POST, "/update-and-submit-income-tax-return/personal-income/2025/charity/check-donations-to-charity")
+        val request = FakeRequest(POST, s"/update-and-submit-income-tax-return/personal-income/$taxYear/charity/check-donations-to-charity")
           .withSession(validTaxYears)
           .withSession(TAX_YEAR -> taxYear.toString)
           .withSession("sessionId" -> sessionId)
@@ -913,7 +913,7 @@ class GiftAidCYAControllerISpec extends CharityITHelper {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some("/update-and-submit-income-tax-return/personal-income/2025/gift-aid/section-completed")
+        redirectLocation(result) mustBe Some(s"/update-and-submit-income-tax-return/personal-income/$taxYear/gift-aid/section-completed")
       }
     }
   }
