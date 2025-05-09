@@ -16,6 +16,7 @@
 
 package controllers.interest
 
+import common.InterestTaxTypes.TAXED
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
@@ -30,13 +31,10 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
+import utils.ClearingNewCYAAccountsHelper.clearNewEmptyAccounts
 import views.html.interest.TaxedInterestView
 
-import common.InterestTaxTypes.TAXED
 import javax.inject.Inject
-import utils.ClearingNewCYAAccountsHelper.clearNewEmptyAccounts
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxedInterestController @Inject()(
@@ -48,7 +46,7 @@ class TaxedInterestController @Inject()(
                                          implicit val mcc: MessagesControllerComponents,
                                          questionsJourneyValidator: QuestionsJourneyValidator,
                                          ec: ExecutionContext
-                                       ) extends FrontendController(mcc) with SessionHelper with I18nSupport with Logging {
+                                       ) extends FrontendController(mcc) with I18nSupport with Logging {
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user: User[AnyContent] =>
 

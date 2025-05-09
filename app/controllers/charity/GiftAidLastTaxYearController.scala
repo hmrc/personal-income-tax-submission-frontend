@@ -31,12 +31,10 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.GiftAidLastTaxYearView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidLastTaxYearController @Inject()(
                                               implicit val cc: MessagesControllerComponents,
@@ -47,7 +45,7 @@ class GiftAidLastTaxYearController @Inject()(
                                               giftAidSessionService: GiftAidSessionService,
                                               errorHandler: ErrorHandler,
                                               ec: ExecutionContext
-                                            ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
+                                            ) extends FrontendController(cc) with I18nSupport with CharityJourney {
 
   lazy val logger: slf4j.Logger = Logger(this.getClass).logger
 

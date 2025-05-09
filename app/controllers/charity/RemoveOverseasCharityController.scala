@@ -29,7 +29,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.RemoveOverseasCharityView
 
 import javax.inject.Inject
@@ -45,7 +44,7 @@ class RemoveOverseasCharityController @Inject()(
                                                  errorHandler: ErrorHandler,
                                                  ec: ExecutionContext,
                                                  implicit val appConfig: AppConfig
-                                               ) extends FrontendController(cc) with I18nSupport with SessionHelper with Logging {
+                                               ) extends FrontendController(cc) with I18nSupport with Logging {
 
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("charity.remove-overseas-charity.noChoice")
 

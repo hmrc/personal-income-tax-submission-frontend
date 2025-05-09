@@ -30,7 +30,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{ChooseAccountService, InterestSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.interest.ChooseAccountView
 
 import java.util.UUID.randomUUID
@@ -47,7 +46,7 @@ class ChooseAccountController @Inject()(
                                          authorisedAction: AuthorisedAction,
                                          val mcc: MessagesControllerComponents,
                                          ec: ExecutionContext
-                                       ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
+                                       ) extends FrontendController(mcc) with I18nSupport with Logging {
 
   private[interest] def form(isAgent: Boolean, taxType: String): Form[String] = {
     val user = if (isAgent) "agent" else "individual"

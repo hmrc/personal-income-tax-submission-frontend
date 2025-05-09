@@ -16,7 +16,6 @@
 
 package controllers.interest
 
-import java.util.UUID.randomUUID
 import common.InterestTaxTypes
 import common.InterestTaxTypes.TAXED
 import config.{AppConfig, ErrorHandler, INTEREST}
@@ -24,9 +23,7 @@ import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.interest.TaxedInterestAmountForm
-
-import javax.inject.Inject
-import models.interest.{InterestAccountModel, InterestCYAModel, TaxedInterestModel, AccountAmountModel}
+import models.interest.{AccountAmountModel, InterestAccountModel, InterestCYAModel, TaxedInterestModel}
 import models.question.QuestionsJourney
 import play.api.Logging
 import play.api.data.Form
@@ -37,12 +34,14 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.interest.TaxedInterestAmountView
 
+import java.util.UUID.randomUUID
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxedInterestAmountController @Inject()(
                                                taxedInterestAmountView: TaxedInterestAmountView
                                              )(
-                                               implicit appConfig: AppConfig,
+                                               implicit val appConfig: AppConfig,
                                                authorisedAction: AuthorisedAction,
                                                interestSessionService: InterestSessionService,
                                                taxedInterestAmountService: TaxedInterestAmountService,

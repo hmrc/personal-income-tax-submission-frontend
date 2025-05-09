@@ -29,12 +29,10 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.DonationsToPreviousTaxYearView
 
 import javax.inject.Inject
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class DonationsToPreviousTaxYearController @Inject()(
                                                       implicit cc: MessagesControllerComponents,
@@ -46,7 +44,7 @@ class DonationsToPreviousTaxYearController @Inject()(
                                                       errorHandler: ErrorHandler,
                                                       appConfig: AppConfig,
                                                       ec: ExecutionContext
-                                                    ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
+                                                    ) extends FrontendController(cc) with I18nSupport with CharityJourney {
 
   override def handleRedirect(
                                taxYear: Int,

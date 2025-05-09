@@ -18,6 +18,7 @@ package controllers.interest
 
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.CommonPredicates.commonPredicates
+import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
 import forms.YesNoForm
 import models.User
@@ -29,9 +30,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{ExcludeJourneyService, InterestSessionService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.interest.InterestGatewayView
-import controllers.predicates.JourneyFilterAction.journeyFilterAction
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,7 +46,7 @@ class InterestGatewayController @Inject()(
                                            authAction: AuthorisedAction,
                                            ec: ExecutionContext,
                                            mcc: MessagesControllerComponents
-                                         ) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
+                                         ) extends FrontendController(mcc) with I18nSupport with Logging {
 
   def show(taxYear: Int): Action[AnyContent] = commonPredicates(taxYear, INTEREST).async { implicit user =>
 

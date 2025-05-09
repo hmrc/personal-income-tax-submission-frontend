@@ -28,7 +28,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.GiftAidDonationView
 
 import javax.inject.Inject
@@ -41,7 +40,7 @@ class GiftAidDonationsController @Inject()(
                                             giftAidSessionService: GiftAidSessionService,
                                             errorHandler: ErrorHandler,
                                             implicit val appConfig: AppConfig
-                                          ) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                          ) extends FrontendController(cc) with I18nSupport {
 
   val yesNoForm: User[AnyContent] => Form[Boolean] = user => {
     val missingInputError = s"charity.uk-charity.errors.noChoice.${if (user.isAgent) "agent" else "individual"}"

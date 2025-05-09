@@ -16,13 +16,13 @@
 
 package config
 
-import org.scalamock.scalatest.MockFactory
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
 
 import scala.concurrent.duration.Duration
 
-class MockAppConfig extends AppConfig with MockFactory {
+@deprecated("Use `ScalamockAppConfig` instead, rather than this concrete class instance. Future refactor to remove this")
+class MockAppConfig extends AppConfig {
   override val signInBaseUrl: String = "/signInBase"
   override val signInContinueUrl: String = "/continue"
   override val signInUrl: String = "/signIn"
@@ -87,6 +87,7 @@ class MockAppConfig extends AppConfig with MockFactory {
   override val dividendsTailoringEnabled: Boolean = false
   override val charityTailoringEnabled: Boolean = false
   override val interestSavingsEnabled: Boolean = false
+  override val sessionCookieServiceEnabled: Boolean = false
 
   override def excludeJourneyUrl(taxYear: Int): String = "/exclude"
 

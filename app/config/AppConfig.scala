@@ -120,18 +120,19 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig) extends AppCon
   lazy val dividendsTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.dividends")
   lazy val charityTailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoring.charity")
   lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.sectionCompletedQuestionEnabled")
+  lazy val sessionCookieServiceEnabled: Boolean = servicesConfig.getBoolean("feature-switch.journeys.sessionCookieServiceEnabled")
 }
 
 @ImplementedBy(classOf[FrontendAppConfig])
 trait AppConfig {
-  val signInBaseUrl: String
+  def signInBaseUrl: String
 
-  val signInContinueUrl: String
+  def signInContinueUrl: String
   def signInUrl: String
-  val dividendsBaseUrl: String
-  val interestBaseUrl: String
-  val giftAidBaseUrl: String
-  val incomeTaxSubmissionBEBaseUrl: String
+  def dividendsBaseUrl: String
+  def interestBaseUrl: String
+  def giftAidBaseUrl: String
+  def incomeTaxSubmissionBEBaseUrl: String
   def vcSessionServiceBaseUrl: String
 
   def defaultTaxYear: Int
@@ -158,10 +159,10 @@ trait AppConfig {
 
   def contactUrl(implicit isAgent: Boolean): String
 
-  val signOutUrl: String
+  def signOutUrl: String
 
-  val timeoutDialogTimeout: Int
-  val timeoutDialogCountdown: Int
+  def timeoutDialogTimeout: Int
+  def timeoutDialogCountdown: Int
 
   def taxYearErrorFeature: Boolean
 
@@ -169,14 +170,14 @@ trait AppConfig {
 
   def routeToSwitchLanguage: String => Call
 
-  val welshToggleEnabled: Boolean
-  val useEncryption: Boolean
+  def welshToggleEnabled: Boolean
+  def useEncryption: Boolean
 
   def isJourneyAvailable(journeyKey: JourneyFeatureSwitchKeys): Boolean
 
   def taxYearSwitchResetsSession: Boolean
 
-  val encryptionKey: String
+  def encryptionKey: String
 
   def mongoTTL: Long
   def replaceIndexes: Boolean
@@ -191,5 +192,6 @@ trait AppConfig {
   def charityTailoringEnabled: Boolean
   def miniJourneyEnabled: Boolean
   def sectionCompletedQuestionEnabled: Boolean
+  def sessionCookieServiceEnabled: Boolean
 
 }

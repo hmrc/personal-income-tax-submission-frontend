@@ -23,6 +23,7 @@ import controllers.predicates.JourneyFilterAction.journeyFilterAction
 import forms.YesNoForm
 import models.User
 import models.charity.GiftAidCYAModel
+import models.charity.GiftAidCYAModel.resetDonatedSharesSecuritiesLandOrProperty
 import models.charity.prior.GiftAidSubmissionModel
 import play.api.data.Form
 import play.api.i18n.I18nSupport
@@ -30,11 +31,9 @@ import play.api.i18n.Lang.logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.GiftAidDonateLandOrPropertyView
-import javax.inject.Inject
-import models.charity.GiftAidCYAModel.resetDonatedSharesSecuritiesLandOrProperty
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class GiftAidDonateLandOrPropertyController @Inject()(
@@ -46,7 +45,7 @@ class GiftAidDonateLandOrPropertyController @Inject()(
                                                        giftAidSessionService: GiftAidSessionService,
                                                        errorHandler: ErrorHandler,
                                                        implicit val appConfig: AppConfig
-                                                     ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney {
+                                                     ) extends FrontendController(cc) with I18nSupport with CharityJourney {
 
   implicit val executionContext: ExecutionContext = cc.executionContext
 

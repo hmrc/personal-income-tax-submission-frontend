@@ -29,7 +29,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{DividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.dividends.ReceiveUkDividendsView
 
 import javax.inject.Inject
@@ -43,7 +42,7 @@ class ReceiveUkDividendsController @Inject()(implicit mcc: MessagesControllerCom
                                              appConfig: AppConfig,
                                              dividendsSessionService: DividendsSessionService,
                                              stockDividendsSessionServiceProvider: StockDividendsSessionServiceProvider,
-                                             ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport with SessionHelper {
+                                             ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
   private val journeyKey: JourneyFeatureSwitchKeys = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends: Boolean = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
