@@ -16,6 +16,7 @@
 
 package controllers.interest
 
+import common.InterestTaxTypes.UNTAXED
 import config.{AppConfig, ErrorHandler, INTEREST}
 import controllers.predicates.CommonPredicates.commonPredicates
 import controllers.predicates.{AuthorisedAction, QuestionsJourneyValidator}
@@ -29,12 +30,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.InterestSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.ClearingNewCYAAccountsHelper.clearNewEmptyAccounts
-import utils.SessionHelper
 import views.html.interest.UntaxedInterestView
 
-import common.InterestTaxTypes.UNTAXED
 import javax.inject.Inject
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class UntaxedInterestController @Inject()(
@@ -46,7 +44,7 @@ class UntaxedInterestController @Inject()(
                                            errorHandler: ErrorHandler,
                                            implicit val mcc: MessagesControllerComponents
                                          )
-  extends FrontendController(mcc) with I18nSupport with SessionHelper {
+  extends FrontendController(mcc) with I18nSupport {
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   val yesNoForm: Form[Boolean] = YesNoForm.yesNoForm("interest.untaxed-uk-interest.errors.noRadioSelected")

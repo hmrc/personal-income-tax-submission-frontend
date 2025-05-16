@@ -34,8 +34,7 @@ class CreateOrAmendSavingsAuditDetailSpec extends UnitTest {
     741.12,
     Some(741.12)
   )
-  private val nino = "AA123456A"
-  private val mtditid = "1234567890"
+
   private val userType = "Individual"
   private val taxYear = 2020
 
@@ -59,7 +58,7 @@ class CreateOrAmendSavingsAuditDetailSpec extends UnitTest {
           "taxYear" -> 2020
         )
 
-          val model = CreateOrAmendSavingsAuditDetail(None, Some(856.23), Some(true), Some(741.12), Some(prior), true, nino, mtditid, userType, taxYear)
+          val model = CreateOrAmendSavingsAuditDetail(None, Some(856.23), Some(true), Some(741.12), Some(prior), true, nino, mtdItId, userType, taxYear)
         Json.toJson(model) shouldBe json
         }
       }

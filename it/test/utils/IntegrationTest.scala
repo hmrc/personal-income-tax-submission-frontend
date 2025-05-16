@@ -47,7 +47,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import repositories.{DividendsUserDataRepository, StockDividendsUserDataRepository}
-import services.{AuthService, DividendsSessionService, StockDividendsSessionServiceImpl}
+import services.{AuthService, DividendsSessionService, SessionDataService, StockDividendsSessionServiceImpl}
 import test.helpers.{PlaySessionCookieBaker, WireMockHelper}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -281,6 +281,7 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
 
   implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   lazy val errorHandler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
+  lazy val sessionDataService: SessionDataService = app.injector.instanceOf[SessionDataService]
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -376,15 +377,16 @@ trait IntegrationTest extends AnyWordSpecLike with Matchers with GuiceOneServerP
                   stubbedRetrieval: Future[_],
                   acceptedConfidenceLevel: Seq[ConfidenceLevel] = Seq.empty[ConfidenceLevel]
                 ): AuthorisedAction = new AuthorisedAction(
-    appConfig,
     agentAuthErrorPage,
-    errorHandler
+    errorHandler,
+    sessionDataService
   )(
     authService(stubbedRetrieval, if (acceptedConfidenceLevel.nonEmpty) {
       acceptedConfidenceLevel
     } else {
       defaultAcceptedConfidenceLevels
     }),
+    appConfig,
     mcc
   )
 

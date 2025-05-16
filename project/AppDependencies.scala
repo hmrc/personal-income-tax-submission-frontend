@@ -20,8 +20,8 @@ import sbt.*
 object AppDependencies {
 
   private val bootstrapPlay30Version = "9.11.0"
-  private val hmrcMongoPlay30Version = "2.5.0"
-  private val hmrcPlayFrontend = "11.12.0"
+  private val hmrcMongoPlay30Version = "2.6.0"
+  private val hmrcPlayFrontend = "11.13.0"
 
   val jacksonAndPlayExclusions: Seq[InclusionRule] = Seq(
     ExclusionRule(organization = "com.fasterxml.jackson.core"),
@@ -47,7 +47,7 @@ object AppDependencies {
     "org.jsoup"               %  "jsoup"                    % "1.19.1",
     "org.playframework"       %% "play-test"                % current,
     "org.mockito"             %% "mockito-scala"            % "1.17.37",
-    "org.scalamock"           %% "scalamock"                % "5.2.0",
+    "org.scalamock"           %% "scalamock"                % "7.3.2",
     "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"  % hmrcMongoPlay30Version
   ).map(_ % "test")
 

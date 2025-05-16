@@ -30,7 +30,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.GiftAidSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.charity.OverseasGiftAidDonationView
 
 import javax.inject.Inject
@@ -46,7 +45,7 @@ class OverseasGiftAidDonationsController @Inject()(
                                                     errorHandler: ErrorHandler,
                                                     ec: ExecutionContext,
                                                     implicit val appConfig: AppConfig
-                                                  ) extends FrontendController(cc) with I18nSupport with SessionHelper with CharityJourney with Logging {
+                                                  ) extends FrontendController(cc) with I18nSupport with CharityJourney with Logging {
 
   override def handleRedirect(taxYear: Int, cya: GiftAidCYAModel, prior: Option[GiftAidSubmissionModel], fromShow: Boolean)
                              (implicit user: User[AnyContent]): Result = {

@@ -30,7 +30,6 @@ import play.api.mvc._
 import play.twirl.api.Html
 import services.{DividendsSessionService, StockDividendsSessionServiceProvider}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
 import views.html.dividends.OtherUkDividendsAmountView
 
 import javax.inject.Inject
@@ -44,7 +43,7 @@ class OtherUkDividendsAmountController @Inject()(implicit val cc: MessagesContro
                                                   stockDividendsSessionService: StockDividendsSessionServiceProvider,
                                                   errorHandler: ErrorHandler,
                                                   implicit val appConfig: AppConfig,
-                                                  ec: ExecutionContext) extends FrontendController(cc) with I18nSupport with SessionHelper {
+                                                  ec: ExecutionContext) extends FrontendController(cc) with I18nSupport {
 
   private val journeyKey: JourneyFeatureSwitchKeys = if (appConfig.isJourneyAvailable(STOCK_DIVIDENDS)) STOCK_DIVIDENDS else DIVIDENDS
   private val isStockDividends: Boolean = appConfig.isJourneyAvailable(STOCK_DIVIDENDS)
