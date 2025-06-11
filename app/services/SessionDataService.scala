@@ -69,7 +69,7 @@ class SessionDataService @Inject()(sessionDataConnector: SessionDataConnector,
           if(sessionDataOpt.isEmpty) logger.warn("Session cookie service returned empty data. Returning no data")
           sessionDataOpt
         case Left(err) =>
-          logger.error(s"[SessionDataService][getSessionDataFromSessionStore] Request to retrieve session data failed with error status: ${err.status} and error body: ${err.body}. Returning None")
+          logger.info(s"[getSessionDataFromSessionStore] Request to retrieve session data failed with error status: ${err.status} and error body: ${err.body}. Returning None")
           None
       }
     } else {
