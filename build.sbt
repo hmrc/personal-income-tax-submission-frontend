@@ -58,7 +58,6 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s"
   )
   .settings(Test / fork := false)
-  .settings(resolvers += Resolver.jcenterRepo)
   .settings(coverageSettings: _*)
   .settings(
     // concatenate js
