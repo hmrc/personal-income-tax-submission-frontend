@@ -1,5 +1,5 @@
 
-# personal-income-tax-submission-fronted
+# personal-income-tax-submission-frontend
 
 This is where users can review and make changes to the dividends, Interest and gift aid sections of their income tax return.
 
