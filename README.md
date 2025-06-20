@@ -36,16 +36,21 @@ To test the branch you're working on locally. You will need to run `sm2 --stop P
 
 | Feature                         | Description                                                                                      |
 |---------------------------------|--------------------------------------------------------------------------------------------------|
-| useEncryption                   | Enables/disables Encryption of aesGcmAdCrypto associatedText                                     |
-| Dividends                       | Enables/disables tailoring for Dividends                                                         |
-| Interest                        | Enables/disables tailoring for Interest                                                          |
-| GiftAid                         | Enables/disables tailoring for GiftAid                                                           |
+| Dividends                       | Enables/disables journeys for Dividends                                                          |
+| Interest                        | Enables/disables journeys for Interest                                                           |
+| Savings                         | Enables/disables journeys for Savings                                                            |
+| GiftAid                         | Enables/disables journeys for GiftAid                                                            |
+| Stock Dividends                 | Enables/disables journeys for Stock Dividends                                                    |
+| miniJourneyEnabled              | Used within the tests                                                                            |
+| sectionCompletedQuestionEnabled | Redirects user to Have you completed this section from CYA page                                  |                                                                                                 |
 | sessionCookieServiceEnabled     | Enables/disables Session Data                                                                    |
 | Welsh                           | Enables a toggle to allow the user to change language to/from Welsh                              |
 | Tailoring                       | Enables/disables tailoring                                                                       |
 | backendSessionEnabled           | Enables backend session storage only once MongoDB‑based session persistence is fully implemented |
-| sectionCompletedQuestionEnabled | Redirects user to Have you completed this section from CYA page                                  |
-
+| tailoring - interest            | Enables/disables tailoring for Interest                                                          |
+| tailoring - dividends           | Enables/disables tailoring for Dividends                                                         |
+| tailoring - charity             | Enables/disables tailoring for Charity                                                           |
+| useEncryption                   | Enables/disables Encryption of aesGcmAdCrypto associatedText                                     |
 
 ## How to access this service
 
