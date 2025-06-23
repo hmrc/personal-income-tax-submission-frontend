@@ -1,5 +1,5 @@
 
-# personal-income-tax-submission-fronted
+# personal-income-tax-submission-frontend
 
 This is where users can review and make changes to the dividends, Interest and gift aid sections of their income tax return.
 
@@ -7,37 +7,50 @@ This is where users can review and make changes to the dividends, Interest and g
 
 You will need to have the following:
 - Installed [MongoDB](https://docs.mongodb.com/manual/installation/)
-- Installed/configured [service manager](https://github.com/hmrc/service-manager).
+- Installed/configured [service manager](https://github.com/hmrc/service-manager)
+- This can be found in the [developer handbook](https://docs.tax.service.gov.uk/mdtp-handbook/documentation/developer-set-up/)
+
 
 The service manager profile for this service is:
 
     sm2 --start PERSONAL_INCOME_TAX_SUBMISSION_FRONTEND
+
 Run the following command to start the remaining services locally:
 
-    sudo mongod (If not already running)
-    sm2 --start INCOME_TAX_SUBMISSION_ALL -r
+    sm2 --start INCOME_TAX_SUBMISSION_ALL
 
 This service runs on port: `localhost:9308`
+
+To test the branch you're working on locally. You will need to run `sm2 --stop PERSONAL_INCOME_TAX_SUBMISSION_FRONTEND` followed by
+`./run.sh`
 
 ### Running Tests
 
 - Run Unit Tests:  `sbt test`
 - Run Integration Tests: `sbt it/test`
 - Run Unit and Integration Tests: `sbt test it/test`
-- Run Unit and Integration Tests with coverage report: `sbt runAllChecks`<br/> 
-  which runs `clean compile coverage test it/test coverageReport`
+- Run Unit and Integration Tests with coverage report: `./check.sh`<br/>
+  which runs `sbt clean coverage test it/test coverageReport dependencyUpdates`
 
 ### Feature Switches
 
-| Feature        | Environments Enabled In        |
-|----------------|--------------------------------|
-| Encryption     | QA, Staging, Production        |
-| Dividends      | Local, QA, Staging, Production |
-| Interest       | Local, QA, Staging, Production |
-| GiftAid        | Local, QA, Staging, Production |
-| Tax Year Error | Production                     |
-| Welsh          | Local, QA, Staging             |
-| Tailoring      | Local                          |
+| Feature                         | Description                                                                                                                   |
+|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| Dividends                       | Enables/disables journeys for Dividends                                                                                       |
+| Interest                        | Enables/disables journeys for Interest                                                                                        |
+| Savings                         | Enables/disables journeys for Savings                                                                                         |
+| GiftAid                         | Enables/disables journeys for GiftAid                                                                                         |
+| Stock Dividends                 | Enables/disables journeys for Stock Dividends                                                                                 |
+| miniJourneyEnabled              | Enable/disable user access to mini journeys for the following income types: dividends, Interest, gift-aid from task list page |
+| sectionCompletedQuestionEnabled | Redirects user to Have you completed this section from CYA page                                                               |                                                                                                 |
+| sessionCookieServiceEnabled     | Enables/disables Session Data                                                                                                 |
+| Welsh                           | Enables a toggle to allow the user to change language to/from Welsh                                                           |
+| Tailoring                       | Enables/disables tailoring                                                                                                    |
+| backendSessionEnabled           | Enables backend session storage only once MongoDB‑based session persistence is fully implemented                              |
+| tailoring - interest            | Enables/disables tailoring for Interest                                                                                       |
+| tailoring - dividends           | Enables/disables tailoring for Dividends                                                                                      |
+| tailoring - charity             | Enables/disables tailoring for Charity                                                                                        |
+| useEncryption                   | Enables/disables Encryption of aesGcmAdCrypto associatedText                                                                  |
 
 ## How to access this service
 
