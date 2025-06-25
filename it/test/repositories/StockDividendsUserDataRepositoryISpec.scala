@@ -116,13 +116,6 @@ class StockDividendsUserDataRepositoryISpec extends IntegrationTest with FutureA
   }
 
   "find" should {
-    def filter(sessionId: String, mtdItId: String, nino: String, taxYear: Int): Bson = org.mongodb.scala.model.Filters.and(
-      org.mongodb.scala.model.Filters.equal("sessionId", toBson(sessionId)),
-      org.mongodb.scala.model.Filters.equal("mtdItId", toBson(mtdItId)),
-      org.mongodb.scala.model.Filters.equal("nino", toBson(nino)),
-      org.mongodb.scala.model.Filters.equal("taxYear", toBson(taxYear))
-    )
-
     val testUser = User(
       mtditid, None, nino, "individual", sessionId
     )
