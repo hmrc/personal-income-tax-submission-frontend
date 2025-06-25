@@ -105,11 +105,7 @@ class GiftAidCYAController @Inject()(implicit mcc: MessagesControllerComponents,
         body = TailorRemoveIncomeSourcesBody(Seq(GIFT_AID.stringify))
       ))
 
-      excludeJourneyService.excludeJourney(GIFT_AID.stringify, taxYear, user.nino).recover {
-        case ex: Exception =>
-          //TODO revisit me in future, as in current code this scenario was ignored, at the moment added logging
-          logger.error(s"Failed to exclude journey for user ${user.nino} for tax year $taxYear", ex)
-      }
+      excludeJourneyService.excludeJourney(GIFT_AID.stringify, taxYear, user.nino)
     }
   }
 
