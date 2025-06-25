@@ -37,7 +37,6 @@ class DividendsUserDataRepository @Inject()(
   indexes = RepositoryIndexes.indexes()(appConfig),
   replaceIndexes = appConfig.replaceIndexes
 ) with UserDataRepository[EncryptedDividendsUserDataModel]{
-  override val repoName = "dividendsUserData"
   override type UserData = DividendsUserDataModel
 
   override def encryptionMethod: DividendsUserDataModel => EncryptedDividendsUserDataModel = encryptionService.encryptDividendsUserData
