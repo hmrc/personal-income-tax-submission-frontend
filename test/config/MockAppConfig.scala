@@ -21,7 +21,7 @@ import play.api.mvc.{Call, RequestHeader}
 
 import scala.concurrent.duration.Duration
 
-@deprecated("Use `ScalamockAppConfig` instead, rather than this concrete class instance. Future refactor to remove this")
+@deprecated("Use `ScalamockAppConfig` instead, rather than this concrete class instance. Future refactor to remove this", "")
 class MockAppConfig extends AppConfig {
   override val signInBaseUrl: String = "/signInBase"
   override val signInContinueUrl: String = "/continue"

@@ -97,13 +97,13 @@ class AuthorisedActionSpec extends UnitTest with GuiceOneAppPerSuite
       .returning(Future.successful(enrolments))
 
     def mockSignInUrl(): CallHandler0[String] =
-      (mockAppConfig.signInUrl _: () => String)
+      (() => mockAppConfig.signInUrl)
         .expects()
         .returning(signInUrl)
         .anyNumberOfTimes()
 
     def mockViewAndChangeUrl(): CallHandler0[String] =
-      (mockAppConfig.viewAndChangeEnterUtrUrl _: () => String)
+      (() => mockAppConfig.viewAndChangeEnterUtrUrl)
         .expects()
         .returning(viewAndChangeUrl)
         .anyNumberOfTimes()

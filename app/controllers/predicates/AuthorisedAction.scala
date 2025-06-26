@@ -34,6 +34,7 @@ import views.html.authErrorPages.AgentAuthErrorPageView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class AuthorisedAction @Inject()(
                                   val agentAuthErrorPage: AgentAuthErrorPageView,
@@ -61,13 +62,14 @@ class AuthorisedAction @Inject()(
       authService.authorised().retrieve(affinityGroup) {
         case Some(AffinityGroup.Agent) => agentAuthentication(block, sessionId)(request, headerCarrier)
         case Some(individualUser) => individualAuthentication(block, individualUser, sessionId)(request, headerCarrier)
+        case None => Future.successful(errorHandler.internalServerError()(request))
       } recover {
         case _: NoActiveSession =>
           Redirect(appConfig.signInUrl)
         case _: AuthorisationException =>
           logger.warn(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
-          Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show)
-        case e =>
+          Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show())
+        case NonFatal(e) =>
           logger.error(s"[AuthorisedAction][invokeBlock] - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
           errorHandler.internalServerError()(request)
       }
@@ -91,7 +93,7 @@ class AuthorisedAction @Inject()(
             signInRedirectFutureResult
           case (None, _) =>
             logger.warn("[AuthorisedAction][individualAuthentication] - User has no MTD IT enrolment. Redirecting user to sign up for MTD.")
-            Future.successful(Redirect(controllers.errors.routes.IndividualAuthErrorController.show))
+            Future.successful(Redirect(controllers.errors.routes.IndividualAuthErrorController.show()))
         }
 
       case _ =>
@@ -129,7 +131,7 @@ class AuthorisedAction @Inject()(
         .recover {
           case _: AuthorisationException =>
             logger.warn(s"[AuthorisedAction][agentAuthentication] - Agent does not have delegated authority for Client.")
-            Redirect(controllers.errors.routes.AgentAuthErrorController.show)
+            Redirect(controllers.errors.routes.AgentAuthErrorController.show())
           case e =>
             logger.error(s"[AuthorisedAction][agentAuthentication] - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
             errorHandler.internalServerError()

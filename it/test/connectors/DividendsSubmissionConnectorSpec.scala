@@ -22,6 +22,7 @@ import connectors.DividendsSubmissionConnector
 import connectors.httpParsers.DividendsSubmissionHttpParser.DividendsSubmissionsResponse
 import models.dividends.{DividendsResponseModel, DividendsSubmissionModel}
 import models.{APIErrorBodyModel, APIErrorModel}
+import play.api.Configuration
 import play.api.http.Status._
 import test.utils.IntegrationTest
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
@@ -30,14 +31,17 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-class DividendsSubmissionConnectorSpec extends IntegrationTest{
+class DividendsSubmissionConnectorSpec extends IntegrationTest {
 
   lazy val connector: DividendsSubmissionConnector = app.injector.instanceOf[DividendsSubmissionConnector]
 
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
-  def appConfig(host: String): AppConfig = new FrontendAppConfig(app.injector.instanceOf[ServicesConfig]) {
-    override lazy val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-dividends"
+  def appConfig(host: String): AppConfig = new FrontendAppConfig(
+    app.injector.instanceOf[ServicesConfig],
+    app.injector.instanceOf[Configuration]
+  ) {
+    override val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-dividends"
   }
 
   val body: DividendsSubmissionModel =  DividendsSubmissionModel(

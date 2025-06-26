@@ -21,6 +21,7 @@ import config.{AppConfig, FrontendAppConfig}
 import connectors.InterestSubmissionConnector
 import models.interest.InterestSubmissionModel
 import models.{APIErrorBodyModel, APIErrorModel, APIErrorsBodyModel}
+import play.api.Configuration
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -34,8 +35,11 @@ class InterestSubmissionConnectorISpec extends IntegrationTest {
 
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
-  def appConfig(host: String): AppConfig = new FrontendAppConfig(app.injector.instanceOf[ServicesConfig]) {
-    override lazy val interestBaseUrl: String = s"http://$host:$wiremockPort/income-tax-interest"
+  def appConfig(host: String): AppConfig = new FrontendAppConfig(
+    app.injector.instanceOf[ServicesConfig],
+    app.injector.instanceOf[Configuration]
+  ) {
+    override val interestBaseUrl: String = s"http://$host:$wiremockPort/income-tax-interest"
   }
 
   lazy val body: Seq[InterestSubmissionModel] = Seq(

@@ -57,7 +57,7 @@ class TaxYearAction @Inject()(taxYear: Int, missingTaxYearReset: Boolean)(
         }
       } else {
         logger.info(s"Invalid tax year, redirecting to error page")
-        Future.successful(Left(Redirect(controllers.routes.TaxYearErrorController.show)))
+        Future.successful(Left(Redirect(controllers.routes.TaxYearErrorController.show())))
       }
     } else {
       logger.info(s"[TaxYearAction][refine] Valid Tax Year list not in Session, return to start page")

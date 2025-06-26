@@ -37,7 +37,6 @@ class GiftAidUserDataRepository @Inject()(
   domainFormat = EncryptedGiftAidUserDataModel.formats,
   indexes = RepositoryIndexes.indexes()
 ) with UserDataRepository[EncryptedGiftAidUserDataModel]{
-  override val repoName = "giftAidUserData"
   override type UserData = GiftAidUserDataModel
   override def encryptionMethod: GiftAidUserDataModel => EncryptedGiftAidUserDataModel = encryptionService.encryptGiftAidUserData
   override def decryptionMethod: EncryptedGiftAidUserDataModel => GiftAidUserDataModel = encryptionService.decryptGiftAidUserData

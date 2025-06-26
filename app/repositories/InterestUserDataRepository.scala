@@ -37,7 +37,6 @@ class InterestUserDataRepository @Inject()(
   domainFormat = EncryptedInterestUserDataModel.formats,
   indexes = RepositoryIndexes.indexes()
 ) with UserDataRepository[EncryptedInterestUserDataModel]{
-  override val repoName = "interestUserData"
   override type UserData = InterestUserDataModel
   override def encryptionMethod: InterestUserDataModel => EncryptedInterestUserDataModel = encryptionService.encryptInterestUserData
   override def decryptionMethod: EncryptedInterestUserDataModel => InterestUserDataModel = encryptionService.decryptInterestUserData

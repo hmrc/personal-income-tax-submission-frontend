@@ -22,6 +22,7 @@ import connectors.StockDividendsSubmissionConnector
 import connectors.httpParsers.StockDividendsSubmissionHttpParser.StockDividendsSubmissionResponse
 import models.dividends.{ForeignDividendModel, StockDividendModel, StockDividendsSubmissionModel}
 import models.{APIErrorBodyModel, APIErrorModel}
+import play.api.Configuration
 import play.api.http.Status._
 import test.utils.IntegrationTest
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
@@ -36,8 +37,11 @@ class StockDividendsSubmissionConnectorSpec extends IntegrationTest{
 
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
-  def appConfig(host: String): AppConfig = new FrontendAppConfig(app.injector.instanceOf[ServicesConfig]) {
-    override lazy val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-dividends"
+  def appConfig(host: String): AppConfig = new FrontendAppConfig(
+    app.injector.instanceOf[ServicesConfig],
+    app.injector.instanceOf[Configuration]
+  ) {
+    override val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-dividends"
   }
 
   val reference: String = "RefNo13254687"

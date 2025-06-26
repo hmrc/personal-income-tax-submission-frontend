@@ -22,41 +22,41 @@ import models.interest.{InterestAccountModel, InterestCYAModel, InterestPriorSub
 import javax.inject.Inject
 
 class ChangeAccountAmountService @Inject() () {
-  def priorAmount(account: InterestAccountModel, taxType: String): Option[BigDecimal] ={
+  def priorAmount(account: InterestAccountModel, taxType: String): Option[BigDecimal] =
     taxType match {
       case InterestTaxTypes.UNTAXED => account.untaxedAmount
       case InterestTaxTypes.TAXED => account.taxedAmount
     }
-  }
 
-  def getSingleAccount(accountId: String, prior: Option[InterestPriorSubmission], cya: Option[InterestCYAModel]): Option[InterestAccountModel] = {
-
+  def getSingleAccount(accountId: String,
+                       prior: Option[InterestPriorSubmission],
+                       cya: Option[InterestCYAModel]): Option[InterestAccountModel] = {
     val priorAccount: Option[InterestAccountModel] = prior.flatMap(_.submissions.find(_.id.contains(accountId)))
     val cyaAccount: Option[InterestAccountModel] = cya.flatMap(_.accounts.find(_.uniqueSessionId.contains(accountId)))
+    priorAccount orElse cyaAccount
+  }
 
-    (priorAccount, cyaAccount) match {
-      case (account@Some(_), _) => account
-      case (_, account@Some(_)) => account
-      case _ => None
+  def replaceAccounts(taxType: String,
+                      cyaData: InterestCYAModel,
+                      accounts: Seq[InterestAccountModel]): InterestCYAModel =
+    taxType match {
+      case InterestTaxTypes.UNTAXED => cyaData.copy(accounts = accounts, untaxedUkInterest = Some(true))
+      case InterestTaxTypes.TAXED => cyaData.copy(accounts = accounts, taxedUkInterest = Some(true))
     }
-  }
 
-  def replaceAccounts(taxType: String, cyaData: InterestCYAModel,
-                                        accounts: Seq[InterestAccountModel]): InterestCYAModel = taxType match {
-    case InterestTaxTypes.UNTAXED => cyaData.copy(accounts = accounts, untaxedUkInterest = Some(true))
-    case InterestTaxTypes.TAXED => cyaData.copy(accounts = accounts, taxedUkInterest = Some(true))
-  }
+  def extractPreAmount(taxType: String,
+                       cya: InterestCYAModel,
+                       accountId: String): Option[BigDecimal] =
+    taxType match {
+      case InterestTaxTypes.UNTAXED => cya.accounts.find(_.getPrimaryId().contains(accountId)).flatMap(_.untaxedAmount)
+      case InterestTaxTypes.TAXED => cya.accounts.find(_.getPrimaryId().contains(accountId)).flatMap(_.taxedAmount)
+    }
 
-  def extractPreAmount(taxType: String, cya: InterestCYAModel,
-                                         accountId: String): Option[BigDecimal] = taxType match {
-    case InterestTaxTypes.UNTAXED =>
-      cya.accounts.find(_.getPrimaryId().contains(accountId)).flatMap(_.untaxedAmount)
-    case InterestTaxTypes.TAXED =>
-      cya.accounts.find(_.getPrimaryId().contains(accountId)).flatMap(_.taxedAmount)
-  }
-
-  def updateAccounts(taxType: String, cya: InterestCYAModel, prior: Option[InterestPriorSubmission],  accountId: String,
-                                       newAmount: BigDecimal): Seq[InterestAccountModel] = {
+  def updateAccounts(taxType: String,
+                     cya: InterestCYAModel,
+                     prior: Option[InterestPriorSubmission],
+                     accountId: String,
+                    newAmount: BigDecimal): Seq[InterestAccountModel] = {
 
     val otherAccounts = cya.accounts.filterNot(_.getPrimaryId().contains(accountId))
     val accountInCYA: Option[InterestAccountModel] = cya.accounts.find(_.getPrimaryId().contains(accountId))

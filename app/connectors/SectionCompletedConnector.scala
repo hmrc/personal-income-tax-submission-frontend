@@ -90,5 +90,6 @@ class SectionCompletedConnector @Inject()(appConfig: AppConfig, httpClient: Http
     case DividendsFromUnitTrusts => appConfig.dividendsBaseUrl
     case FreeRedeemableShares => appConfig.dividendsBaseUrl
     case CloseCompanyLoans => appConfig.dividendsBaseUrl
+    case _ => throw new IllegalArgumentException("No matching url for journey")
   }
 }
