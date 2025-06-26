@@ -28,7 +28,7 @@ object AccountList {
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] = {
       data.get(key) match {
-        case Some(accountName) => Right(accountName)
+        case Some(value) => Right(value)
         case _ => Left(Seq(FormError(key, missingInputError, args)))
       }
     }
