@@ -22,6 +22,7 @@ import models.mongo.JourneyAnswers
 import models.mongo.JourneyStatus.Completed
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import play.api.Configuration
 import play.api.http.Status._
 import play.api.libs.json.Json
 import test.utils.IntegrationTest
@@ -37,9 +38,12 @@ class SectionCompletedConnectorISpec extends IntegrationTest {
   private lazy val connector: SectionCompletedConnector = app.injector.instanceOf[SectionCompletedConnector]
   lazy val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
 
-  def appConfig(host: String): AppConfig = new FrontendAppConfig(app.injector.instanceOf[ServicesConfig]) {
-    override lazy val giftAidBaseUrl: String = s"http://$host:$wiremockPort/income-tax-gift-aid"
-    override lazy val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-dividends"
+  def appConfig(host: String): AppConfig = new FrontendAppConfig(
+    app.injector.instanceOf[ServicesConfig],
+    app.injector.instanceOf[Configuration]
+  ) {
+    override val giftAidBaseUrl: String = s"http://$host:$wiremockPort/income-tax-gift-aid"
+    override val dividendsBaseUrl: String = s"http://$host:$wiremockPort/income-tax-dividends"
   }
 
   private def keepAliveUrl(journey: String, taxYear: Int) =

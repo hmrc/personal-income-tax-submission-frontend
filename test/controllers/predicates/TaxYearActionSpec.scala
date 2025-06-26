@@ -126,7 +126,7 @@ class TaxYearActionSpec extends UnitTest {
         }
 
         "has the TaxYearError redirect url" in {
-          redirectUrl(result.map(_.left.toOption.get)) shouldBe controllers.routes.TaxYearErrorController.show.url
+          redirectUrl(result.map(_.left.toOption.get)) shouldBe controllers.routes.TaxYearErrorController.show().url
         }
 
       }
@@ -171,7 +171,7 @@ class TaxYearActionSpec extends UnitTest {
         }
 
         "has the TaxYearError redirect url" in {
-          redirectUrl(result.map(_.left.toOption.get)) shouldBe controllers.routes.TaxYearErrorController.show.url
+          redirectUrl(result.map(_.left.toOption.get)) shouldBe controllers.routes.TaxYearErrorController.show().url
         }
       }
 

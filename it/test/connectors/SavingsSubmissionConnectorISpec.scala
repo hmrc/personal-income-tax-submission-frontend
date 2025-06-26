@@ -22,6 +22,7 @@ import connectors.SavingsSubmissionConnector
 import connectors.httpParsers.SavingsSubmissionHttpParser.SavingsSubmissionResponse
 import models.savings.{SavingsSubmissionModel, SecuritiesModel}
 import models.{APIErrorBodyModel, APIErrorModel}
+import play.api.Configuration
 import play.api.http.Status._
 import test.utils.IntegrationTest
 import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
@@ -36,8 +37,11 @@ class SavingsSubmissionConnectorISpec extends IntegrationTest{
 
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
-  def appConfig(host: String): AppConfig = new FrontendAppConfig(app.injector.instanceOf[ServicesConfig]) {
-    override lazy val interestBaseUrl: String = s"http://$host:$wiremockPort/income-tax-interest"
+  def appConfig(host: String): AppConfig = new FrontendAppConfig(
+    app.injector.instanceOf[ServicesConfig],
+    app.injector.instanceOf[Configuration]
+  ) {
+    override val interestBaseUrl: String = s"http://$host:$wiremockPort/income-tax-interest"
   }
 
   val body: SavingsSubmissionModel =  SavingsSubmissionModel(

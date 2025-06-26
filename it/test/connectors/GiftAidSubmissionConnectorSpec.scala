@@ -22,6 +22,7 @@ import connectors.GiftAidSubmissionConnector
 import connectors.httpParsers.GiftAidSubmissionHttpParser.GiftAidSubmissionsResponse
 import models.charity.prior.{GiftAidPaymentsModel, GiftAidSubmissionModel, GiftsModel}
 import models.{APIErrorBodyModel, APIErrorModel}
+import play.api.Configuration
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.Helpers.NO_CONTENT
@@ -38,8 +39,11 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
   lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
 
-  def appConfig(host: String): AppConfig = new FrontendAppConfig(app.injector.instanceOf[ServicesConfig]) {
-    override lazy val giftAidBaseUrl: String = s"http://$host:$wiremockPort/income-tax-gift-aid"
+  def appConfig(host: String): AppConfig = new FrontendAppConfig(
+    app.injector.instanceOf[ServicesConfig],
+    app.injector.instanceOf[Configuration]
+  ) {
+    override val giftAidBaseUrl: String = s"http://$host:$wiremockPort/income-tax-gift-aid"
   }
 
 
