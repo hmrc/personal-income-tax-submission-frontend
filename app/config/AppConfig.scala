@@ -77,9 +77,7 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig, configuration:
   def feedbackSurveyUrl(implicit isAgent: Boolean): String = s"$feedbackFrontendUrl/feedback/$contactFormServiceIdentifier"
 
   def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String = {
-    val url = s"$contactFrontEndUrl/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
-    println(url)
-    url
+    s"$contactFrontEndUrl/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
   }
 
   def contactUrl(implicit isAgent: Boolean): String = s"$contactFrontEndUrl/contact/contact-hmrc?service=$contactFormServiceIdentifier"
