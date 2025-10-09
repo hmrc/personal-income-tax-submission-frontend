@@ -19,17 +19,18 @@ package connectors.stockdividends
 import config.AppConfig
 import connectors.RawResponseReads
 import connectors.httpParsers.stockdividends.DeleteStockDividendsSessionHttpParser._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeleteStockDividendsSessionConnector @Inject()(val http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
+class DeleteStockDividendsSessionConnector @Inject()(val http: HttpClientV2, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
 
   def deleteSessionData(taxYear: Int)(implicit hc: HeaderCarrier): Future[DeleteStockDividendsSessionResponse] = {
 
     val deleteStockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
-
-    http.DELETE[DeleteStockDividendsSessionResponse](deleteStockDividendsUserDataUrl)
+    http.delete(url"$deleteStockDividendsUserDataUrl")
+      .execute[DeleteStockDividendsSessionResponse]
   }
 }

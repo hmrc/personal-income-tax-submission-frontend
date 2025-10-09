@@ -99,7 +99,7 @@ class GiftAidOverseasSharesNameController @Inject()(
               }
 
               giftAidSessionService.updateSessionData(updatedCya, taxYear)(
-                InternalServerError(errorHandler.internalServerErrorTemplate)
+                errorHandler.internalServerError()
               )(
                 Redirect(controllers.charity.routes.OverseasSharesLandSummaryController.show(taxYear))
               )

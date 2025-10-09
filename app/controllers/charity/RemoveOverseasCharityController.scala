@@ -96,7 +96,7 @@ class RemoveOverseasCharityController @Inject()(
 
               if (yesNoForm) {
                 giftAidSessionService.updateSessionData(updatedModel, taxYear)(
-                  InternalServerError(errorHandler.internalServerErrorTemplate)
+                  errorHandler.internalServerError()
                 )(redirectLocation)
               } else {
                 Future.successful(redirectLocation)

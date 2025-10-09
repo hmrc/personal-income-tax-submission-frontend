@@ -18,21 +18,23 @@ package connectors
 
 import config.AppConfig
 import connectors.httpParsers.ExcludeJourneyHttpParser._
-import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ExcludeJourneyConnector @Inject()(
-                                         http: HttpClient,
+                                         http: HttpClientV2,
                                          appConfig: AppConfig
                                        )(implicit ec: ExecutionContext) {
 
   def excludeJourney(journeyKey: String, taxYear: Int, nino: String)(implicit hc: HeaderCarrier): Future[ExcludeJourneyResponse] = {
-    http.POST[JsObject, ExcludeJourneyResponse](
-      appConfig.incomeTaxSubmissionBEBaseUrl + s"/income-tax/nino/$nino/sources/exclude-journey/$taxYear", Json.obj("journey" -> journeyKey)
-    )
+    val url = appConfig.incomeTaxSubmissionBEBaseUrl + s"/income-tax/nino/$nino/sources/exclude-journey/$taxYear"
+    http.post(url"$url")
+      .withBody(Json.obj("journey" -> journeyKey))
+      .execute[ExcludeJourneyResponse]
   }
 
 }

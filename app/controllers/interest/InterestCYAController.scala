@@ -58,7 +58,7 @@ class InterestCYAController @Inject()(
       InterestCYAModel.getCyaModel(cya, prior) match {
         case Some(cyaData) if !cyaData.isFinished => handleUnfinishedRedirect(cyaData, taxYear)
         case Some(cyaData) =>
-          interestSessionService.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.internalServerError())(
+          interestSessionService.updateSessionData(cyaData, taxYear, cya.isEmpty)(errorHandler.futureInternalServerError())(
             Ok(interestCyaView(cyaData, taxYear, prior))
           )
         case _ =>

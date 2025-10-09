@@ -20,6 +20,8 @@ import repositories.InterestUserDataRepository
 import services.InterestSessionService
 import test.utils.IntegrationTest
 
+import scala.concurrent.Future
+
 
 class InterestSessionServiceISpec extends IntegrationTest{
 
@@ -30,7 +32,7 @@ class InterestSessionServiceISpec extends IntegrationTest{
 
   "update" should{
     "return false when failing to decrypt the model" in {
-      val result = await(interestSessionServiceInvalidEncryption.updateSessionData(completeInterestCYAModel, taxYear)(false)(true))
+      val result = await(interestSessionServiceInvalidEncryption.updateSessionData(completeInterestCYAModel, taxYear)(Future(false))(true))
       result shouldBe false
     }
   }

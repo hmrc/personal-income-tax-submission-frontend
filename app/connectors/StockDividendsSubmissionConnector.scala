@@ -19,17 +19,21 @@ package connectors
 import config.AppConfig
 import connectors.httpParsers.StockDividendsSubmissionHttpParser._
 import models.dividends.StockDividendsSubmissionModel
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class StockDividendsSubmissionConnector @Inject()(val http: HttpClient, appConfig: AppConfig)
+class StockDividendsSubmissionConnector @Inject()(val http: HttpClientV2, appConfig: AppConfig)
                                                  (implicit ec: ExecutionContext) extends RawResponseReads {
 
   def submitDividends(body: StockDividendsSubmissionModel, nino: String, taxYear: Int)
                      (implicit hc: HeaderCarrier): Future[StockDividendsSubmissionResponse] = {
-      val dividendsSubmissionUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$nino/$taxYear"
-      http.PUT[StockDividendsSubmissionModel, StockDividendsSubmissionResponse](dividendsSubmissionUrl, body)
+    val dividendsSubmissionUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$nino/$taxYear"
+    http.put(url"$dividendsSubmissionUrl")
+      .withBody(Json.toJson(body))
+      .execute[StockDividendsSubmissionResponse]
   }
 }

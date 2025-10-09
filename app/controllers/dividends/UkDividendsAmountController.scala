@@ -116,7 +116,7 @@ class UkDividendsAmountController @Inject()(implicit val cc: MessagesControllerC
               } {
                 cyaModel =>
                   dividendsSessionService.updateSessionData(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal)), taxYear)(
-                    InternalServerError(errorHandler.internalServerErrorTemplate)
+                    errorHandler.internalServerError()
                   )(
                     Redirect(redirectLocation(taxYear, Some(cyaModel.copy(ukDividends = Some(true), ukDividendsAmount = Some(bigDecimal))))(optionalPrior))
                   )

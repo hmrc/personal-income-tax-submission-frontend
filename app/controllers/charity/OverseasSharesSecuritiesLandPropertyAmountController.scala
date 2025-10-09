@@ -119,7 +119,7 @@ class OverseasSharesSecuritiesLandPropertyAmountController @Inject()(
                       Redirect(controllers.charity.routes.GiftAidOverseasSharesNameController.show(taxYear, None))
                     }
                     giftAidSessionService.updateSessionData(cyaData.copy(overseasDonatedSharesSecuritiesLandOrPropertyAmount = Some(amount)), taxYear)(
-                      InternalServerError(errorHandler.internalServerErrorTemplate)
+                      errorHandler.internalServerError()
                     )(redirectLocation)
                 })
             }

@@ -109,7 +109,7 @@ class RemoveAccountController @Inject()(
     }
 
   def updateAndRedirect(cyaData: InterestCYAModel, taxYear: Int)(redirect: Result)(implicit user: User[_]): Future[Result] = {
-    interestSessionService.updateSessionData(cyaData, taxYear)(errorHandler.internalServerError())(redirect)
+    interestSessionService.updateSessionData(cyaData, taxYear)(errorHandler.futureInternalServerError())(redirect)
   }
 
   private[interest] def removeAccount(taxYear: Int,
