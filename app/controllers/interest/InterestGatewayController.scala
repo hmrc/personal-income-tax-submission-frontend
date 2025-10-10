@@ -132,9 +132,9 @@ class InterestGatewayController @Inject()(
                                 (redirect: Result)(implicit user: User[_]): Future[Result] = {
 
     if (isUpdate) {
-      interestSessionService.updateSessionData(interestCYAModel, taxYear)(errorHandler.internalServerError())(redirect)
+      interestSessionService.updateSessionData(interestCYAModel, taxYear)(errorHandler.futureInternalServerError())(redirect)
     } else {
-      interestSessionService.updateSessionData(interestCYAModel, taxYear, needsCreating = true)(errorHandler.internalServerError())(redirect)
+      interestSessionService.updateSessionData(interestCYAModel, taxYear, needsCreating = true)(errorHandler.futureInternalServerError())(redirect)
     }
   }
 

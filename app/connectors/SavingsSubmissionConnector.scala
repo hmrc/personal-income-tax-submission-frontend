@@ -19,16 +19,20 @@ package connectors
 import config.AppConfig
 import connectors.httpParsers.SavingsSubmissionHttpParser.{SavingsSubmissionResponse, _}
 import models.savings.SavingsSubmissionModel
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SavingsSubmissionConnector @Inject()(val http: HttpClient, appConfig: AppConfig) extends RawResponseReads {
+class SavingsSubmissionConnector @Inject()(val http: HttpClientV2, appConfig: AppConfig) extends RawResponseReads {
 
   def submitSavings(body: SavingsSubmissionModel, nino: String, taxYear: Int)
                      (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SavingsSubmissionResponse] = {
-      val url: String = appConfig.interestBaseUrl + s"/income-tax/nino/$nino/savings?taxYear=$taxYear"
-      http.PUT[SavingsSubmissionModel, SavingsSubmissionResponse](url, body)
+    val url: String = appConfig.interestBaseUrl + s"/income-tax/nino/$nino/savings?taxYear=$taxYear"
+    http.put(url"$url")
+      .withBody(Json.toJson(body))
+      .execute[SavingsSubmissionResponse]
   }
 }

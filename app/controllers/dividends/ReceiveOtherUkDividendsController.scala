@@ -108,7 +108,7 @@ class ReceiveOtherUkDividendsController @Inject()(
 
   private def updateAndRedirect(cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, redirectCall: Call)(implicit user: User[_]): Future[Result] = {
     dividendsSessionService.updateSessionData(cyaModel, taxYear)(
-      InternalServerError(errorHandler.internalServerErrorTemplate)
+      errorHandler.internalServerError()
     )(
       Redirect(redirectCall)
     )

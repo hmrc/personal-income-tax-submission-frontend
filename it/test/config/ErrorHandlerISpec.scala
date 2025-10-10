@@ -56,7 +56,8 @@ class ErrorHandlerISpec extends IntegrationTest with ViewHelpers {
       "return the notFoundTemplate when an incorrect web address when been entered" which {
 
         lazy val view = errorHandler.notFoundTemplate
-        lazy implicit val document: Document = Jsoup.parse(view.body)
+        val result = await(view)
+        lazy implicit val document: Document = Jsoup.parse(result.body)
 
         "displays the correct page title" in {
 

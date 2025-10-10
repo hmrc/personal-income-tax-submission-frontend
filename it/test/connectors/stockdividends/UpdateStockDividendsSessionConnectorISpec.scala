@@ -23,7 +23,8 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.Helpers.NO_CONTENT
 import test.utils.IntegrationTest
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, SessionId}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -32,7 +33,7 @@ class UpdateStockDividendsSessionConnectorISpec extends IntegrationTest {
 
   lazy val connector: UpdateStockDividendsSessionConnector = app.injector.instanceOf[UpdateStockDividendsSessionConnector]
 
-  lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
+  lazy val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 

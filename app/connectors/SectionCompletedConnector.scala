@@ -26,6 +26,7 @@ import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import ConnectorFailureLogger._
 import models.Journey
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import models.Journey.{CashDividends, CloseCompanyLoans, DividendsFromUnitTrusts, FreeRedeemableShares, GiftAid, GiltEdged, StockDividends, UkInterest}
 
 import java.net.URL

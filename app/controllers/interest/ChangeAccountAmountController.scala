@@ -124,7 +124,7 @@ class ChangeAccountAmountController @Inject()(
                   val updatedAccounts = changeAccountAmountService.updateAccounts(taxType, cyaData, prior, accountId, formAmount)
                   val updatedCYA = changeAccountAmountService.replaceAccounts(taxType, cyaData, updatedAccounts)
 
-                  interestSessionService.updateSessionData(updatedCYA, taxYear)(errorHandler.internalServerError())(
+                  interestSessionService.updateSessionData(updatedCYA, taxYear)(errorHandler.futureInternalServerError())(
                     Redirect(controllers.interest.routes.AccountsController.show(taxYear, taxType))
                   )
                 }

@@ -105,7 +105,7 @@ class GiftAidOneOffController @Inject()(
                 case _ => Redirect(controllers.charity.routes.OverseasGiftAidDonationsController.show(taxYear))
               }
               giftAidSessionService.updateSessionData(updatedCya, taxYear)(
-                InternalServerError(errorHandler.internalServerErrorTemplate))(redirectLocation)
+                errorHandler.internalServerError())(redirectLocation)
             }
           }
       })

@@ -20,7 +20,7 @@
 
 @this(heading : Heading, layout: Layout, formHelper: FormWithCSRF, button: Button)
 
-@(postAction: Call)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(postAction: Call)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 @layout(pageTitle = messages("timeout.heading"), backLink = false, timeout = false, showSignOut = false) {
 

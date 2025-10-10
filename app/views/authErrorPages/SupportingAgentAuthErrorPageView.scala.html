@@ -19,7 +19,7 @@
 
 @this(layout: Layout)
 
-@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@()(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 @layout(messages("error.unauthorised-user.title")) {
 
     <h1 class="govuk-heading-xl">@messages("error.unauthorised-user.title")</h1>

@@ -19,16 +19,20 @@ package connectors
 import config.AppConfig
 import connectors.httpParsers.RefreshIncomeSourceHttpParser.{RefreshIncomeSourceHttpReads, RefreshIncomeSourceResponse}
 import models.RefreshIncomeSourceRequest
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class IncomeSourceConnector @Inject()(val http: HttpClient,
+class IncomeSourceConnector @Inject()(val http: HttpClientV2,
                                       val config: AppConfig)(implicit ec: ExecutionContext) {
 
   def put(taxYear: Int, nino: String, incomeSource: String)(implicit hc: HeaderCarrier): Future[RefreshIncomeSourceResponse] = {
     val targetUrl = config.incomeTaxSubmissionBEBaseUrl + s"/income-tax/nino/$nino/sources/session?taxYear=$taxYear"
-    http.PUT[RefreshIncomeSourceRequest, RefreshIncomeSourceResponse](targetUrl, RefreshIncomeSourceRequest(incomeSource))
+    http.put(url"$targetUrl")
+      .withBody(Json.toJson(RefreshIncomeSourceRequest(incomeSource)))
+      .execute[RefreshIncomeSourceResponse]
   }
 }

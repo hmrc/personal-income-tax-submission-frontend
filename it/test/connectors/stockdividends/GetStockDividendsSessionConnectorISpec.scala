@@ -17,8 +17,8 @@
 package connectors.stockdividends
 
 import connectors.httpParsers.stockdividends.GetStockDividendsSessionHttpParser.GetStockDividendsSessionResponse
-import models.{APIErrorBodyModel, APIErrorModel}
 import models.mongo.StockDividendsUserDataModel
+import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.Helpers.OK

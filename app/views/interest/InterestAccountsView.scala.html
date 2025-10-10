@@ -34,7 +34,7 @@
     govukSummaryList: GovukSummaryList
 )
 
-@(form: Form[Boolean], taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String, isAgent: Boolean, priorSubmission: Option[InterestPriorSubmission] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(form: Form[Boolean], taxYear: Int, accounts: Seq[InterestAccountModel], taxType: String, isAgent: Boolean, priorSubmission: Option[InterestPriorSubmission] = None)(implicit request: RequestHeader, messages: Messages, appConfig: AppConfig)
 
 @hasFormErrors = @{form.hasErrors}
 

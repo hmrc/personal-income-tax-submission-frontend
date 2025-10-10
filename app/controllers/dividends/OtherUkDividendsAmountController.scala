@@ -114,7 +114,7 @@ class OtherUkDividendsAmountController @Inject()(implicit val cc: MessagesContro
               } {
                 cyaModel =>
                   dividendsSessionService.updateSessionData(cyaModel.copy(otherUkDividends = Some(true), otherUkDividendsAmount = Some(bigDecimal)), taxYear)(
-                    InternalServerError(errorHandler.internalServerErrorTemplate)
+                    errorHandler.internalServerError()
                   )(
                     Redirect(controllers.dividends.routes.DividendsCYAController.show(taxYear))
                   )

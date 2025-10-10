@@ -102,7 +102,7 @@ class GiftAidSharesSecuritiesLandPropertyOverseasController @Inject()(
                   overseasDonatedSharesSecuritiesLandOrPropertyCharityNames =
                     if (success) cyaData.overseasDonatedSharesSecuritiesLandOrPropertyCharityNames else Seq.empty)
                 , taxYear)(
-                InternalServerError(errorHandler.internalServerErrorTemplate)
+                errorHandler.internalServerError()
               )(
                 Redirect(redirectLocation)
               )

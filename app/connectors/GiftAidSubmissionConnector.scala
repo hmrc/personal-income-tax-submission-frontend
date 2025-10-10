@@ -19,18 +19,21 @@ package connectors
 import config.AppConfig
 import connectors.httpParsers.GiftAidSubmissionHttpParser._
 import models.charity.prior.GiftAidSubmissionModel
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
-
 import scala.concurrent.{ExecutionContext, Future}
 
-class GiftAidSubmissionConnector @Inject()(val http: HttpClient, appConfig: AppConfig)
+class GiftAidSubmissionConnector @Inject()(val http: HttpClientV2, appConfig: AppConfig)
                                           (implicit ec: ExecutionContext) extends RawResponseReads {
 
   def submitGiftAid(body: GiftAidSubmissionModel, nino: String, taxYear: Int)
                    (implicit hc: HeaderCarrier): Future[GiftAidSubmissionsResponse] = {
     val giftAidSubmissionUrl: String = appConfig.giftAidBaseUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear"
-    http.POST[GiftAidSubmissionModel, GiftAidSubmissionsResponse](giftAidSubmissionUrl, body)
+    http.post(url"$giftAidSubmissionUrl")
+      .withBody(Json.toJson(body))
+      .execute[GiftAidSubmissionsResponse]
   }
 }

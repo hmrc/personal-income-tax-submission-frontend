@@ -20,17 +20,20 @@ import config.AppConfig
 import connectors.RawResponseReads
 import connectors.httpParsers.stockdividends.UpdateStockDividendsSessionHttpParser._
 import models.dividends.StockDividendsCheckYourAnswersModel
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UpdateStockDividendsSessionConnector @Inject()(val http: HttpClient, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
+class UpdateStockDividendsSessionConnector @Inject()(val http: HttpClientV2, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RawResponseReads {
 
   def updateSessionData(body: StockDividendsCheckYourAnswersModel, taxYear: Int)(implicit hc: HeaderCarrier): Future[UpdateStockDividendsSessionResponse] = {
 
     val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
-
-    http.PUT[StockDividendsCheckYourAnswersModel, UpdateStockDividendsSessionResponse](stockDividendsUserDataUrl, body)
+    http.put(url"$stockDividendsUserDataUrl")
+      .withBody(Json.toJson(body))
+      .execute[UpdateStockDividendsSessionResponse]
   }
 }

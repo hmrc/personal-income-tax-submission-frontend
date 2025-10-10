@@ -109,7 +109,7 @@ class UntaxedInterestAmountController @Inject()(
               val newAccountList = untaxedInterestAmountService.createNewAccountsList(completeForm, existingAccountWithName, cyaData.accounts, id)
               val updatedCyaModel = cyaData.copy(accounts = newAccountList)
 
-              interestSessionService.updateSessionData(updatedCyaModel, taxYear)(InternalServerError(errorHandler.internalServerErrorTemplate))(
+              interestSessionService.updateSessionData(updatedCyaModel, taxYear)(errorHandler.futureInternalServerError())(
                 Redirect(controllers.interest.routes.AccountsController.show(taxYear, InterestTaxTypes.UNTAXED))
               )
             case _ =>

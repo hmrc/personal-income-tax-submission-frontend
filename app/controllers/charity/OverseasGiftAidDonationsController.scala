@@ -110,7 +110,7 @@ class OverseasGiftAidDonationsController @Inject()(
               }
 
               giftAidSessionService.updateSessionData(updatedCya, taxYear)(
-                InternalServerError(errorHandler.internalServerErrorTemplate)
+                errorHandler.internalServerError()
               )(redirectLocation)
             }
           }

@@ -35,10 +35,6 @@
 
 @(form: Form[BigDecimal], taxYear: Int)(implicit user: User[_], messages: Messages, appConfig: AppConfig)
 
-@hintText = @{
-    Some(messages("common.currency.hint"))
-}
-
 @titleForUse = @{
     messages(s"dividends.stock-dividend-amount.question.${if(user.isAgent) "agent" else "individual"}")
 }

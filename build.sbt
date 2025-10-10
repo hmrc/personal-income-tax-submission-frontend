@@ -53,9 +53,9 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     TwirlKeys.templateImports ++= twirlImports,
     // only required for frontends
-    scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
+    scalacOptions += "-Wconf:src=routes/.*:s",
     // for all services
-    scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s"
+    scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s"
   )
   .settings(Test / fork := false)
   .settings(coverageSettings: _*)

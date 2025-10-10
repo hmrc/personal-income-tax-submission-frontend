@@ -19,18 +19,20 @@ package connectors
 import config.AppConfig
 import connectors.httpParsers.StockDividendsUserDataHttpParser._
 import models.User
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class StockDividendsUserDataConnector @Inject()(val http: HttpClient,
+class StockDividendsUserDataConnector @Inject()(val http: HttpClientV2,
                                                 val config: AppConfig)(implicit ec: ExecutionContext) {
 
   def getUserData(taxYear: Int)(implicit user: User[_], hc: HeaderCarrier): Future[StockDividendsUserDataResponse] = {
     val stockDividendsUserDataUrl: String = config.dividendsBaseUrl + s"/income-tax/income/dividends/${user.nino}/$taxYear"
 
-    http.GET[StockDividendsUserDataResponse](stockDividendsUserDataUrl)
+    http.get(url"$stockDividendsUserDataUrl")
+      .execute[StockDividendsUserDataResponse]
   }
 
 }

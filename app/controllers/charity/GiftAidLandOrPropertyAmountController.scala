@@ -105,7 +105,7 @@ class GiftAidLandOrPropertyAmountController @Inject()(
                     }
 
                     giftAidSessionService.updateSessionData(cyaModel.copy(donatedLandOrPropertyAmount = Some(amount)), taxYear)(
-                      InternalServerError(errorHandler.internalServerErrorTemplate)
+                      errorHandler.internalServerError()
                     )(
                       redirectLocation
                     )

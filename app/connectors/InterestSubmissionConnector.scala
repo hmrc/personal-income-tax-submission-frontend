@@ -18,14 +18,16 @@ package connectors
 
 import config.AppConfig
 import connectors.httpParsers.InterestSubmissionHttpParser.{InterestSubmissionResponseReads, InterestSubmissionsResponse}
-import javax.inject.Inject
 import models.interest.InterestSubmissionModel
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class InterestSubmissionConnector @Inject()(
-                                             httpClient: HttpClient,
+                                             http: HttpClientV2,
                                              appConfig: AppConfig
                                            ) {
 
@@ -33,7 +35,8 @@ class InterestSubmissionConnector @Inject()(
             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[InterestSubmissionsResponse] = {
     val url: String = appConfig.interestBaseUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear"
 
-    httpClient.POST[Seq[InterestSubmissionModel], InterestSubmissionsResponse](url, body)
+    http.post(url"$url")
+      .withBody(Json.toJson(body))
+      .execute[InterestSubmissionsResponse]
   }
-
 }

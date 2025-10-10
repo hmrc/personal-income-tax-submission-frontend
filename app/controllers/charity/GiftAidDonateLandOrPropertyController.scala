@@ -105,7 +105,7 @@ class GiftAidDonateLandOrPropertyController @Inject()(
             }
 
             giftAidSessionService.updateSessionData(updatedModel, taxYear)(
-              InternalServerError(errorHandler.internalServerErrorTemplate)
+              errorHandler.internalServerError()
             )(
               redirectLocation
             )

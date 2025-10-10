@@ -22,7 +22,8 @@ import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import test.utils.IntegrationTest
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -31,7 +32,7 @@ class CreateStockDividendsSessionConnectorISpec extends IntegrationTest {
 
   private val connector: CreateStockDividendsSessionConnector = app.injector.instanceOf[CreateStockDividendsSessionConnector]
 
-  private val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
+  private val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
 
   private val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid, "X-Session-ID" -> sessionId)
 

@@ -111,7 +111,7 @@ class GiftAidOneOffAmountController @Inject()(
                 }
 
                 giftAidSessionService.updateSessionData(updatedCya, taxYear)(
-                  InternalServerError(errorHandler.internalServerErrorTemplate)
+                  errorHandler.internalServerError()
                 )(redirectLocation)
             })
           case _ =>
