@@ -32,7 +32,7 @@ class DividendsSubmissionConnector @Inject()(val http: HttpClientV2,  appConfig:
   def submitDividends(body: DividendsSubmissionModel, nino: String, taxYear: Int)
                      (implicit hc: HeaderCarrier): Future[DividendsSubmissionsResponse] = {
     val dividendsSubmissionUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear"
-    http.post(url"$dividendsSubmissionUrl")
+    http.put(url"$dividendsSubmissionUrl")
       .withBody(Json.toJson(body))
       .execute[DividendsSubmissionsResponse]
   }

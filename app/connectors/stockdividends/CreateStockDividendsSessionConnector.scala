@@ -33,7 +33,7 @@ class CreateStockDividendsSessionConnector @Inject()(val http: HttpClientV2, app
 
     val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
 
-    http.put(url"$stockDividendsUserDataUrl")
+    http.post(url"$stockDividendsUserDataUrl")
       .withBody(Json.toJson(body))
       .execute[CreateStockDividendsSessionResponse]
   }

@@ -27,7 +27,8 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.Helpers.NO_CONTENT
 import test.utils.IntegrationTest
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, SessionId}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.Await
@@ -37,7 +38,7 @@ class GiftAidSubmissionConnectorSpec extends IntegrationTest {
 
   lazy val connector: GiftAidSubmissionConnector = app.injector.instanceOf[GiftAidSubmissionConnector]
 
-  lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
+  lazy val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
 
   def appConfig(host: String): AppConfig = new FrontendAppConfig(
     app.injector.instanceOf[ServicesConfig],

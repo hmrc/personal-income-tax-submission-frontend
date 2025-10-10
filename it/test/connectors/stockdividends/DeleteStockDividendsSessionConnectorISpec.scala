@@ -20,12 +20,13 @@ import connectors.httpParsers.stockdividends.DeleteStockDividendsSessionHttpPars
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.http.Status._
 import test.utils.IntegrationTest
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
 class DeleteStockDividendsSessionConnectorISpec extends IntegrationTest {
 
   private val connector: DeleteStockDividendsSessionConnector = app.injector.instanceOf[DeleteStockDividendsSessionConnector]
-  private val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
+  private val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
   private val hc: HeaderCarrier = HeaderCarrier()
   private val url = s"/income-tax-dividends/income-tax/income/dividends/$taxYear/stock-dividends/session"
 

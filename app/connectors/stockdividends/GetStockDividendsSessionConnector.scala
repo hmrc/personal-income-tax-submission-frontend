@@ -29,7 +29,7 @@ class GetStockDividendsSessionConnector @Inject()(val http: HttpClientV2, appCon
 
   def getSessionData(taxYear: Int)(implicit hc: HeaderCarrier): Future[GetStockDividendsSessionResponse] = {
     val stockDividendsUserDataUrl: String = appConfig.dividendsBaseUrl + s"/income-tax/income/dividends/$taxYear/stock-dividends/session"
-    http.put(url"$stockDividendsUserDataUrl")
+    http.get(url"$stockDividendsUserDataUrl")
       .execute[GetStockDividendsSessionResponse]
   }
 }
