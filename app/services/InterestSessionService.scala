@@ -51,7 +51,7 @@ class InterestSessionService @Inject()(
     }
   }
 
-  def updateSessionData[A](cyaModel: InterestCYAModel, taxYear: Int, needsCreating: Boolean = false)(onFail: A)(onSuccess: A)
+  def updateSessionData[A](cyaModel: InterestCYAModel, taxYear: Int, needsCreating: Boolean = false)(onFail: Future[A])(onSuccess: A)
                           (implicit user: User[_], ec: ExecutionContext): Future[A] = {
     val userData = InterestUserDataModel(
       user.sessionId,
@@ -63,13 +63,13 @@ class InterestSessionService @Inject()(
     )
 
     if (needsCreating) {
-      interestUserDataRepository.create(userData)().map {
-        case Right(_) => onSuccess
+      interestUserDataRepository.create(userData)().flatMap {
+        case Right(_) => Future.successful(onSuccess)
         case Left(_) => onFail
       }
     } else {
-      interestUserDataRepository.update(userData).map {
-        case Right(_) => onSuccess
+      interestUserDataRepository.update(userData).flatMap {
+        case Right(_) => Future.successful(onSuccess)
         case Left(_) => onFail
       }
     }

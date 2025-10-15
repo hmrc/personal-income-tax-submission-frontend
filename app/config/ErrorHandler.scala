@@ -19,35 +19,37 @@ package config
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results._
-import play.api.mvc.{Request, RequestHeader, Result}
+import play.api.mvc.{RequestHeader, Result}
 import play.twirl.api.Html
-import uk.gov.hmrc.play.bootstrap.frontend.http.LegacyFrontendErrorHandler
+import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTemplate,
                              serviceUnavailableTemplate: ServiceUnavailableTemplate,
                              val messagesApi: MessagesApi,
-                             notFoundTemplate: NotFoundTemplate)(implicit appConfig: AppConfig)
-    extends LegacyFrontendErrorHandler with I18nSupport {
+                             notFoundTemplate: NotFoundTemplate)
+                            (implicit appConfig: AppConfig,
+                             executionContext: ExecutionContext)
+    extends FrontendErrorHandler with I18nSupport {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html =
-    internalServerErrorTemplate()
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader): Future[Html] =
+    Future.successful(internalServerErrorTemplate())
 
-  override def notFoundTemplate(implicit request: Request[_]): Html = notFoundTemplate()
+  override def notFoundTemplate(implicit request: RequestHeader): Future[Html] = Future.successful(notFoundTemplate())
 
-  def internalServerError()(implicit user: Request[_]): Result = {
+  def internalServerError()(implicit user: RequestHeader): Result = {
     InternalServerError(internalServerErrorTemplate())
   }
 
-  def futureInternalServerError()(implicit user: Request[_]): Future[Result] = {
+  def futureInternalServerError()(implicit user: RequestHeader): Future[Result] = {
     Future.successful(InternalServerError(internalServerErrorTemplate()))
   }
 
-  def handleError(status: Int)(implicit request: Request[_]): Result = {
+  def handleError(status: Int)(implicit request: RequestHeader): Result = {
     status match {
       case SERVICE_UNAVAILABLE => ServiceUnavailable(serviceUnavailableTemplate())
       case _ => InternalServerError(internalServerErrorTemplate())
@@ -57,9 +59,14 @@ class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTem
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =
     statusCode match {
       case NOT_FOUND =>
-        Future.successful(NotFound(notFoundTemplate(request.withBody(""))))
+        notFoundTemplate(request).map(NotFound(_))(executionContext)
       case _ =>
-        Future.successful(InternalServerError(internalServerErrorTemplate()(request.withBody(""),request2Messages(request),appConfig)))
+        Future.successful(
+          InternalServerError(internalServerErrorTemplate()(request,request2Messages(request),appConfig))
+        )
     }
+
+  override protected implicit val ec: ExecutionContext = executionContext
+
 
 }

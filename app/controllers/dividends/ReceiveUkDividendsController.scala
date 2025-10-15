@@ -160,7 +160,7 @@ class ReceiveUkDividendsController @Inject()(implicit mcc: MessagesControllerCom
 
   private def newAndRedirect(cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, redirectCall: Call)(implicit user: User[_]): Future[Result] = {
     dividendsSessionService.updateSessionData(cyaModel, taxYear, true)(
-      InternalServerError(errorHandler.internalServerErrorTemplate)
+      errorHandler.internalServerError()
     )(
       Redirect(redirectCall)
     )
@@ -168,7 +168,7 @@ class ReceiveUkDividendsController @Inject()(implicit mcc: MessagesControllerCom
 
   private def updateAndRedirect(cyaModel: DividendsCheckYourAnswersModel, taxYear: Int, redirectCall: Call)(implicit user: User[_]): Future[Result] = {
     dividendsSessionService.updateSessionData(cyaModel, taxYear)({
-      InternalServerError(errorHandler.internalServerErrorTemplate)
+      errorHandler.internalServerError()
     })(
       Redirect(redirectCall)
     )

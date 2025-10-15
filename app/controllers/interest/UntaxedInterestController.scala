@@ -70,7 +70,7 @@ class UntaxedInterestController @Inject()(
   private[interest] def createOrUpdateSessionData(cyaModel: InterestCYAModel, taxYear: Int, needsCreating: Boolean)
                                                  (block: Result)
                                                  (implicit user: User[_]): Future[Result] = {
-    interestSessionService.updateSessionData(cyaModel, taxYear, needsCreating)(errorHandler.internalServerError())(block)
+    interestSessionService.updateSessionData(cyaModel, taxYear, needsCreating)(errorHandler.futureInternalServerError())(block)
   }
 
   def submit(taxYear: Int): Action[AnyContent] = authAction.async { implicit user =>
@@ -105,7 +105,7 @@ class UntaxedInterestController @Inject()(
                       Redirect(controllers.interest.routes.TaxedInterestController.show(taxYear))
                     )
                   case (_, true) =>
-                    interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                    interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.futureInternalServerError())(
                       Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
                     )
                 }

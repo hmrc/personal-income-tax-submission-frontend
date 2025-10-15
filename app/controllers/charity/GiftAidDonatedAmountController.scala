@@ -106,7 +106,7 @@ class GiftAidDonatedAmountController @Inject()(
                   }
 
                   giftAidSessionService.updateSessionData(updatedCya, taxYear)(
-                    InternalServerError(errorHandler.internalServerErrorTemplate))(redirectLocation)
+                    errorHandler.internalServerError())(redirectLocation)
                 case _ =>
                   logger.info("[GiftAidDonatedAmountController][submit] No CYA data in session. Redirecting to overview page.")
                   Future.successful(redirectToOverview(taxYear))

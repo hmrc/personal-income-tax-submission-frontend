@@ -90,10 +90,10 @@ class TaxedInterestController @Inject()(
                     })
 
                     if (yesNoModel) {
-                      interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                      interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.futureInternalServerError())(
                         Redirect(controllers.interest.routes.ChooseAccountController.show(taxYear, TAXED)))
                     } else {
-                      interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.internalServerError())(
+                      interestSessionService.updateSessionData(updatedCya, taxYear)(errorHandler.futureInternalServerError())(
                         Redirect(controllers.interest.routes.InterestCYAController.show(taxYear)))
                     }
                 })

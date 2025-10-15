@@ -20,10 +20,9 @@ import com.google.inject.ImplementedBy
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URLEncoder
 import javax.inject.Inject
 import scala.concurrent.duration.Duration
 
@@ -31,11 +30,8 @@ import scala.concurrent.duration.Duration
 class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig, configuration: Configuration) extends AppConfig {
   lazy val signInBaseUrl: String = servicesConfig.getString(ConfigKeys.signInUrl)
 
-  private val allowedHosts: Seq[String] = configuration.get[Seq[String]]("microservice.allowedRedirects")
-  private val redirectPolicy = OnlyRelative | AbsoluteWithHostnameFromAllowlist(allowedHosts:_*)
-
   private val signInContinueBaseUrl: String = servicesConfig.getString(ConfigKeys.signInContinueUrl)
-  val signInContinueUrl: String = RedirectUrl(signInContinueBaseUrl).get(redirectPolicy).encodedUrl //TODO add redirect to overview page
+  val signInContinueUrl: String = URLEncoder.encode(signInContinueBaseUrl, "UTF-8") //TODO add redirect to overview page
   private val signInOrigin: String = servicesConfig.getString("appName")
 
   val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrl&origin=$signInOrigin"
@@ -74,14 +70,15 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig, configuration:
 
   def contactFormServiceIdentifier(implicit isAgent: Boolean): String = if (isAgent) contactFormServiceAgent else contactFormServiceIndividual
 
-  private def requestUri(implicit request: RequestHeader): String = RedirectUrl(appUrl + request.uri).get(redirectPolicy).encodedUrl
+  private def requestUri(implicit request: RequestHeader): String = URLEncoder.encode(appUrl + request.uri, "UTF-8")
 
   private val feedbackFrontendUrl: String = servicesConfig.getString(ConfigKeys.feedbackFrontendUrl)
 
   def feedbackSurveyUrl(implicit isAgent: Boolean): String = s"$feedbackFrontendUrl/feedback/$contactFormServiceIdentifier"
 
-  def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String =
+  def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String = {
     s"$contactFrontEndUrl/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
+  }
 
   def contactUrl(implicit isAgent: Boolean): String = s"$contactFrontEndUrl/contact/contact-hmrc?service=$contactFormServiceIdentifier"
 

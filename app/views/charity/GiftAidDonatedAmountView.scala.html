@@ -44,17 +44,6 @@
     }
 }
 
-@contentHtml = @{
-    p(Html(messages(s"charity.amount-via-gift-aid.${if(user.isAgent) "agent" else "individual"}.p")),
-        classes = "govuk-body govuk-!-margin-bottom-3",
-        id = Some("p1")
-    )
-}
-
-@caption = @{
-    Some(messages("charity.caption", (taxYear - 1).toString, taxYear.toString))
-}
-
 @layout(pageTitle = titleText, taxYear = Some(taxYear), hasErrors = form.hasErrors) {
     @errorSummary(form.errors)
 

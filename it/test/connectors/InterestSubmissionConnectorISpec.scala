@@ -26,14 +26,15 @@ import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import test.utils.IntegrationTest
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient, SessionId}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, SessionId}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class InterestSubmissionConnectorISpec extends IntegrationTest {
 
   lazy val connector: InterestSubmissionConnector = app.injector.instanceOf[InterestSubmissionConnector]
 
-  lazy val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
+  lazy val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
 
   def appConfig(host: String): AppConfig = new FrontendAppConfig(
     app.injector.instanceOf[ServicesConfig],

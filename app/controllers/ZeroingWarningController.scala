@@ -193,7 +193,7 @@ class ZeroingWarningController @Inject()(
       cya match {
         case Some(cyaData) =>
           val newSessionData = zeroInterestData(cyaData, prior.map(_.submissions.flatMap(_.id)).getOrElse(Seq.empty[String]))
-          interestSession.updateSessionData(newSessionData, taxYear)(errorHandler.internalServerError()) {
+          interestSession.updateSessionData(newSessionData, taxYear)(errorHandler.futureInternalServerError()) {
             Redirect(controllers.interest.routes.InterestCYAController.show(taxYear))
           }
         case _ => Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
